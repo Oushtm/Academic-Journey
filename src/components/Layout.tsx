@@ -22,26 +22,26 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="glass-effect shadow-lg border-b border-gray-200/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 md:h-20">
-            <Link to="/" className="flex items-center space-x-2 md:space-x-4 group animate-fade-in flex-shrink-0">
-              <div className="relative">
+      <header className="glass-effect shadow-lg border-b border-gray-200/50 sticky top-0 z-50 w-full">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16 md:h-20 min-h-[56px]">
+            <Link to="/" className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 group animate-fade-in flex-shrink-0 min-w-0">
+              <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-700 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-600 to-primary-800 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <span className="text-white font-bold text-lg md:text-xl">📚</span>
+                <div className="relative w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary-600 to-primary-800 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <span className="text-white font-bold text-base sm:text-lg md:text-xl">📚</span>
                 </div>
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+              <div className="min-w-0 flex-1 sm:flex-none">
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent truncate">
                   Academic Management System
                 </h1>
-                <p className="text-xs text-gray-500 font-medium">EMSI Academic Tracker</p>
+                <p className="hidden sm:block text-xs text-gray-500 font-medium truncate">EMSI Academic Tracker</p>
               </div>
             </Link>
             
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-2 animate-fade-in">
+            {/* Desktop Navigation - Hidden on mobile and tablet */}
+            <nav className="hidden xl:flex items-center space-x-2 animate-fade-in">
               <Link
                 to="/"
                 className={`px-4 md:px-5 py-2 md:py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${
@@ -100,10 +100,10 @@ export function Layout({ children }: LayoutProps) {
               )}
             </nav>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Show on screens smaller than xl */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors"
+              className="xl:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors flex-shrink-0"
               aria-label="Toggle menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,9 +116,9 @@ export function Layout({ children }: LayoutProps) {
             </button>
           </div>
 
-          {/* Mobile Navigation Menu */}
+          {/* Mobile Navigation Menu - Show on screens smaller than xl */}
           {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-gray-200 animate-fade-in">
+            <div className="xl:hidden py-3 sm:py-4 border-t border-gray-200 animate-fade-in">
               <nav className="flex flex-col space-y-2">
                 <Link
                   to="/"
