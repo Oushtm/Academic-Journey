@@ -94,20 +94,26 @@ export function SubjectView() {
 
   const handleAddLesson = async () => {
     if (!subjectId || !isAdmin) return; // Only admin can add lessons
+    // Get fresh subject data to ensure we have the latest lessons
+    const currentSubject = getSubject(subjectId);
+    if (!currentSubject) return;
     const newLesson: Lesson = {
       id: generateId(),
       title: 'New Lesson',
       notes: '',
       reviewStatus: 'Not Reviewed' as ReviewStatus,
     };
-    const currentLessons = subject.lessons || [];
+    const currentLessons = currentSubject.lessons || [];
     await updateSubjectLessons(subjectId, [...currentLessons, newLesson]);
     // The useEffect will reload the subject when refreshTrigger changes
   };
 
   const handleLessonUpdate = async (lessonId: string, updates: Partial<Lesson>) => {
     if (!subjectId) return;
-    const currentLessons = subject.lessons || [];
+    // Get fresh subject data to ensure we have the latest lessons
+    const currentSubject = getSubject(subjectId);
+    if (!currentSubject) return;
+    const currentLessons = currentSubject.lessons || [];
     const updatedLessons = currentLessons.map((lesson: Lesson) =>
       lesson.id === lessonId ? { ...lesson, ...updates } : lesson
     );
@@ -117,7 +123,10 @@ export function SubjectView() {
 
   const handleDeleteLesson = async (lessonId: string) => {
     if (!subjectId || !isAdmin) return; // Only admin can delete lessons
-    const currentLessons = subject.lessons || [];
+    // Get fresh subject data to ensure we have the latest lessons
+    const currentSubject = getSubject(subjectId);
+    if (!currentSubject) return;
+    const currentLessons = currentSubject.lessons || [];
     await updateSubjectLessons(subjectId, currentLessons.filter((l: Lesson) => l.id !== lessonId));
     // The useEffect will reload the subject when refreshTrigger changes
   };
