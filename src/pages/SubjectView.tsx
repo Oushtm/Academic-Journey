@@ -384,7 +384,7 @@ export function SubjectView() {
 
 interface LessonCardProps {
   lesson: Lesson;
-  onUpdate: (updates: Partial<Lesson>) => void;
+  onUpdate: (updates: Partial<Lesson>) => Promise<void>;
   onDelete: () => void;
   isAdmin: boolean; // Add isAdmin prop
 }
@@ -440,8 +440,17 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
     });
   };
 
-  const handleSave = () => {
-    onUpdate(localData);
+  const handleSave = async () => {
+    // Only pass the actual changes, not the full object with undefined values
+    const updates: Partial<Lesson> = {
+      title: localData.title,
+      notes: localData.notes,
+      reviewStatus: localData.reviewStatus,
+      youtubeLink: localData.youtubeLink,
+      courseLink: localData.courseLink,
+      pdfFile: localData.pdfFile,
+    };
+    await onUpdate(updates);
     setIsEditing(false);
   };
 
