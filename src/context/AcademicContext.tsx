@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { AcademicYear, Subject, SubjectUserData, Module, UserData, Lesson } from '../types';
+import type { AcademicYear, Subject, SubjectUserData, Module, UserData, Lesson, ReviewStatus } from '../types';
 import { loadSharedStructure, saveSharedStructure } from '../services/sharedStorage';
 import { loadUserData, saveUserData } from '../services/authStorage';
 import { useAuth } from './AuthContext';
@@ -19,6 +19,7 @@ interface AcademicContextType {
   getUserSubjectData: (subjectId: string) => SubjectUserData | undefined;
   updateUserSubjectData: (subjectId: string, data: Partial<SubjectUserData>) => Promise<void>;
   updateSubjectLessons: (subjectId: string, lessons: Lesson[]) => Promise<void>;
+  updateLessonReviewStatus: (subjectId: string, lessonId: string, reviewStatus: ReviewStatus) => Promise<void>;
   getSubject: (subjectId: string) => Subject | null;
   getSubjectsForYear: (yearNumber: number) => Array<{ subject: Subject; module: Module }>;
   refreshTrigger: number;
@@ -105,6 +106,49 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  // Update user's review status for a lesson (all users can do this)
+  const updateLessonReviewStatus = async (subjectId: string, lessonId: string, reviewStatus: ReviewStatus) => {
+    if (!currentUser) return;
+    
+    const currentData = userDataCache[currentUser.id] || {
+      userId: currentUser.id,
+      subjectData: {},
+    };
+    
+    const existing = currentData.subjectData[subjectId] || {
+      subjectId,
+      missedSessions: 0,
+      lessonReviewStatus: {},
+    };
+
+    const updatedData = {
+      ...currentData,
+      subjectData: {
+        ...currentData.subjectData,
+        [subjectId]: {
+          ...existing,
+          lessonReviewStatus: {
+            ...existing.lessonReviewStatus,
+            [lessonId]: reviewStatus,
+          },
+        },
+      },
+    };
+
+    // Update cache immediately for UI responsiveness
+    setUserDataCache({ ...userDataCache, [currentUser.id]: updatedData });
+    
+    // Save to Supabase/localStorage
+    try {
+      await saveUserData(updatedData);
+      console.log('Successfully saved lesson review status for', lessonId);
+    } catch (error) {
+      console.error('Error saving lesson review status:', error);
+    }
+    
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
   // Update lessons in shared structure (admin only)
   const updateSubjectLessons = async (subjectId: string, lessons: Lesson[]) => {
     const newYears = structure.years.map((year) => ({
@@ -150,12 +194,18 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
           // Merge with user data from cache
           const userData = getUserSubjectData(subjectId);
           
+          // Merge lessons with user-specific review status
+          const lessonsWithUserStatus = (subjectStruct.lessons || []).map(lesson => ({
+            ...lesson,
+            reviewStatus: userData?.lessonReviewStatus?.[lesson.id] as ReviewStatus | undefined,
+          }));
+
           return {
             ...subjectStruct,
             assignmentScore: userData?.assignmentScore,
             examScore: userData?.examScore,
             missedSessions: userData?.missedSessions ?? 0,
-            lessons: subjectStruct.lessons || [],
+            lessons: lessonsWithUserStatus,
           };
         }
       }
@@ -171,13 +221,19 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
     for (const module of year.modules) {
       for (const subjectStruct of module.subjects) {
         const userData = getUserSubjectData(subjectStruct.id);
+        // Merge lessons with user-specific review status
+        const lessonsWithUserStatus = (subjectStruct.lessons || []).map(lesson => ({
+          ...lesson,
+          reviewStatus: userData?.lessonReviewStatus?.[lesson.id] as ReviewStatus | undefined,
+        }));
+
         result.push({
           subject: {
             ...subjectStruct,
             assignmentScore: userData?.assignmentScore,
             examScore: userData?.examScore,
             missedSessions: userData?.missedSessions ?? 0,
-            lessons: subjectStruct.lessons || [],
+            lessons: lessonsWithUserStatus,
           },
           module,
         });
@@ -194,6 +250,7 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
         getUserSubjectData,
         updateUserSubjectData,
         updateSubjectLessons,
+        updateLessonReviewStatus,
         getSubject,
         getSubjectsForYear,
         refreshTrigger,

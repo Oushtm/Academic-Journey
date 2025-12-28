@@ -9,7 +9,7 @@ import type { ReviewStatus, Lesson, Subject } from '../types';
 export function SubjectView() {
   const { subjectId } = useParams<{ subjectId: string }>();
   const { currentUser } = useAuth();
-  const { getSubject, updateUserSubjectData, updateSubjectLessons, years, refreshTrigger } = useAcademic();
+  const { getSubject, updateUserSubjectData, updateSubjectLessons, updateLessonReviewStatus, years, refreshTrigger } = useAcademic();
   const isAdmin = currentUser?.isAdmin ?? false;
   
   const [subject, setSubject] = useState<Subject | null>(null);
@@ -101,7 +101,6 @@ export function SubjectView() {
       id: generateId(),
       title: 'New Lesson',
       notes: '',
-      reviewStatus: 'Not Reviewed' as ReviewStatus,
     };
     const currentLessons = currentSubject.lessons || [];
     await updateSubjectLessons(subjectId, [...currentLessons, newLesson]);
@@ -381,11 +380,13 @@ export function SubjectView() {
           </div>
         ) : (
           <div className="space-y-4">
-                 {subject.lessons.map((lesson: Lesson) => (
+                 {subject.lessons.map((lesson) => (
                    <LessonCard
                      key={lesson.id}
                      lesson={lesson}
+                     subjectId={subjectId!}
                      onUpdate={(updates) => handleLessonUpdate(lesson.id, updates)}
+                     onUpdateReviewStatus={(reviewStatus: ReviewStatus) => updateLessonReviewStatus(subjectId!, lesson.id, reviewStatus)}
                      onDelete={() => handleDeleteLesson(lesson.id)}
                      isAdmin={isAdmin}
                    />
@@ -398,19 +399,23 @@ export function SubjectView() {
 }
 
 interface LessonCardProps {
-  lesson: Lesson;
+  lesson: Lesson & { reviewStatus?: ReviewStatus };
+  subjectId: string;
   onUpdate: (updates: Partial<Lesson>) => Promise<void>;
+  onUpdateReviewStatus: (reviewStatus: ReviewStatus) => Promise<void>;
   onDelete: () => void;
-  isAdmin: boolean; // Add isAdmin prop
+  isAdmin: boolean;
 }
 
-function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
+function LessonCard({ lesson, onUpdate, onUpdateReviewStatus, onDelete, isAdmin }: LessonCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(lesson);
+  const [reviewStatus, setReviewStatus] = useState<ReviewStatus>((lesson as Lesson & { reviewStatus?: ReviewStatus }).reviewStatus || 'Not Reviewed');
   
-  // Sync localData when lesson prop changes
+  // Sync localData and reviewStatus when lesson prop changes
   useEffect(() => {
     setLocalData(lesson);
+    setReviewStatus((lesson as Lesson & { reviewStatus?: ReviewStatus }).reviewStatus || 'Not Reviewed');
   }, [lesson]);
 
   const statusColors = {
@@ -459,10 +464,10 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
     try {
       console.log('Saving lesson with data:', localData);
       // Only pass the actual changes, not the full object with undefined values
+      // Note: reviewStatus is handled separately via onUpdateReviewStatus
       const updates: Partial<Lesson> = {
         title: localData.title,
         notes: localData.notes,
-        reviewStatus: localData.reviewStatus,
         youtubeLink: localData.youtubeLink,
         courseLink: localData.courseLink,
         pdfFile: localData.pdfFile,
@@ -477,6 +482,11 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
       // Still close edit mode even on error
       setIsEditing(false);
     }
+  };
+
+  const handleReviewStatusChange = async (newStatus: ReviewStatus) => {
+    setReviewStatus(newStatus);
+    await onUpdateReviewStatus(newStatus);
   };
 
   return (
@@ -501,18 +511,6 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
               className="w-full px-4 py-3 border-2 border-primary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all font-medium resize-none"
               placeholder="Add your revision notes here..."
             />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">✅ Review Status</label>
-            <select
-              value={localData.reviewStatus}
-              onChange={(e) => setLocalData({ ...localData, reviewStatus: e.target.value as ReviewStatus })}
-              className="w-full px-4 py-3 border-2 border-primary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all font-medium bg-white"
-            >
-              <option value="Not Reviewed">Not Reviewed</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Reviewed">Reviewed</option>
-            </select>
           </div>
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">🎥 YouTube Link (Optional)</label>
@@ -597,9 +595,20 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
             <div className="flex-1">
               <h4 className="font-bold text-lg md:text-xl text-gray-900 mb-2 group-hover:text-primary-700 transition-colors break-words">{lesson.title}</h4>
-              <span className={`inline-block px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-xs font-bold border-2 ${statusColors[lesson.reviewStatus]}`}>
-                {lesson.reviewStatus}
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`inline-block px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-xs font-bold border-2 ${statusColors[reviewStatus]}`}>
+                  {reviewStatus}
+                </span>
+                <select
+                  value={reviewStatus}
+                  onChange={(e) => handleReviewStatusChange(e.target.value as ReviewStatus)}
+                  className="px-2 py-1 text-xs font-semibold border-2 border-primary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                >
+                  <option value="Not Reviewed">Not Reviewed</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Reviewed">Reviewed</option>
+                </select>
+              </div>
             </div>
             {isAdmin && (
               <div className="flex items-center gap-2 sm:ml-4">

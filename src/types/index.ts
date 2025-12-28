@@ -4,7 +4,7 @@ export interface Lesson {
   id: string;
   title: string;
   notes: string;
-  reviewStatus: ReviewStatus;
+  // Note: reviewStatus is now user-specific (stored in SubjectUserData.lessonReviewStatus)
   youtubeLink?: string; // YouTube video URL
   courseLink?: string; // Other course/resource link
   pdfFile?: {
@@ -30,6 +30,8 @@ export interface SubjectUserData {
   examScore?: number;
   // Attendance (user-specific)
   missedSessions: number;
+  // User-specific lesson review status (lessonId -> reviewStatus)
+  lessonReviewStatus?: Record<string, ReviewStatus>;
   // Note: Lessons are now in shared structure (SubjectStructure.lessons)
 }
 
@@ -38,7 +40,7 @@ export interface Subject extends SubjectStructure {
   assignmentScore?: number;
   examScore?: number;
   missedSessions: number;
-  lessons: Lesson[];
+  lessons: (Lesson & { reviewStatus?: ReviewStatus })[]; // reviewStatus is optional and user-specific
 }
 
 export interface User {
