@@ -9,7 +9,7 @@ import type { ReviewStatus, Lesson, Subject } from '../types';
 export function SubjectView() {
   const { subjectId } = useParams<{ subjectId: string }>();
   const { currentUser } = useAuth();
-  const { getSubject, updateUserSubjectData, years, refreshTrigger } = useAcademic();
+  const { getSubject, updateUserSubjectData, updateSubjectLessons, years, refreshTrigger } = useAcademic();
   const isAdmin = currentUser?.isAdmin ?? false;
   
   const [subject, setSubject] = useState<Subject | null>(null);
@@ -101,27 +101,37 @@ export function SubjectView() {
       reviewStatus: 'Not Reviewed' as ReviewStatus,
     };
     const currentLessons = subject.lessons || [];
-    await updateUserSubjectData(subjectId, {
-      lessons: [...currentLessons, newLesson],
-    });
+    await updateSubjectLessons(subjectId, [...currentLessons, newLesson]);
+    // Refresh subject to get updated lessons
+    const updatedSubject = getSubject(subjectId);
+    if (updatedSubject) {
+      setSubject(updatedSubject);
+    }
   };
 
   const handleLessonUpdate = async (lessonId: string, updates: Partial<Lesson>) => {
     if (!subjectId) return;
     const currentLessons = subject.lessons || [];
-    await updateUserSubjectData(subjectId, {
-      lessons: currentLessons.map((lesson: Lesson) =>
-        lesson.id === lessonId ? { ...lesson, ...updates } : lesson
-      ),
-    });
+    const updatedLessons = currentLessons.map((lesson: Lesson) =>
+      lesson.id === lessonId ? { ...lesson, ...updates } : lesson
+    );
+    await updateSubjectLessons(subjectId, updatedLessons);
+    // Refresh subject to get updated lessons
+    const updatedSubject = getSubject(subjectId);
+    if (updatedSubject) {
+      setSubject(updatedSubject);
+    }
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
     if (!subjectId || !isAdmin) return; // Only admin can delete lessons
     const currentLessons = subject.lessons || [];
-    await updateUserSubjectData(subjectId, {
-      lessons: currentLessons.filter((l: Lesson) => l.id !== lessonId),
-    });
+    await updateSubjectLessons(subjectId, currentLessons.filter((l: Lesson) => l.id !== lessonId));
+    // Refresh subject to get updated lessons
+    const updatedSubject = getSubject(subjectId);
+    if (updatedSubject) {
+      setSubject(updatedSubject);
+    }
   };
 
   return (
@@ -474,6 +484,26 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
             </select>
           </div>
           <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">🎥 YouTube Link (Optional)</label>
+            <input
+              type="url"
+              value={localData.youtubeLink || ''}
+              onChange={(e) => setLocalData({ ...localData, youtubeLink: e.target.value || undefined })}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full px-4 py-3 border-2 border-primary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all font-medium"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">🔗 Course Link (Optional)</label>
+            <input
+              type="url"
+              value={localData.courseLink || ''}
+              onChange={(e) => setLocalData({ ...localData, courseLink: e.target.value || undefined })}
+              placeholder="https://example.com/course..."
+              className="w-full px-4 py-3 border-2 border-primary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all font-medium"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">📎 PDF File (Optional)</label>
             {localData.pdfFile ? (
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-green-50 border-2 border-green-200 rounded-xl">
@@ -560,6 +590,32 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
           {lesson.notes && (
             <div className="mt-4 p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 text-sm text-gray-700 whitespace-pre-wrap font-medium leading-relaxed">
               {lesson.notes}
+            </div>
+          )}
+          {(lesson.youtubeLink || lesson.courseLink) && (
+            <div className="mt-4 flex flex-col sm:flex-row gap-3">
+              {lesson.youtubeLink && (
+                <a
+                  href={lesson.youtubeLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-300 font-bold shadow-lg hover:shadow-xl active:scale-95 text-sm"
+                >
+                  <span className="text-lg">🎥</span>
+                  Watch on YouTube
+                </a>
+              )}
+              {lesson.courseLink && (
+                <a
+                  href={lesson.courseLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 font-bold shadow-lg hover:shadow-xl active:scale-95 text-sm"
+                >
+                  <span className="text-lg">🔗</span>
+                  Open Course Link
+                </a>
+              )}
             </div>
           )}
           {lesson.pdfFile && (

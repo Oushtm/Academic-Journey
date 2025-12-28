@@ -21,6 +21,7 @@ export function AddSubjectForm({ module, onClose }: AddSubjectFormProps) {
       id: generateId(),
       name: subjectName.trim(),
       coefficient: coefficient ? parseFloat(coefficient) : undefined,
+      lessons: [],
     };
 
     const updatedYears = years.map((y) => ({

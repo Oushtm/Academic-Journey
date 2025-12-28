@@ -19,6 +19,7 @@ export function AddSubjectInline({ onAdd, onCancel }: AddSubjectInlineProps) {
       id: generateId(),
       name: subjectName.trim(),
       coefficient: coefficient ? parseFloat(coefficient) : undefined,
+      lessons: [],
     };
 
     onAdd(newSubject);

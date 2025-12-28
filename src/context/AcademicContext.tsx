@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { AcademicYear, Subject, SubjectUserData, Module, UserData } from '../types';
+import type { AcademicYear, Subject, SubjectUserData, Module, UserData, Lesson } from '../types';
 import { loadSharedStructure, saveSharedStructure } from '../services/sharedStorage';
 import { loadUserData, saveUserData } from '../services/authStorage';
 import { useAuth } from './AuthContext';
@@ -18,6 +18,7 @@ interface AcademicContextType {
   updateStructure: (years: AcademicYear[]) => void;
   getUserSubjectData: (subjectId: string) => SubjectUserData | undefined;
   updateUserSubjectData: (subjectId: string, data: Partial<SubjectUserData>) => Promise<void>;
+  updateSubjectLessons: (subjectId: string, lessons: Lesson[]) => Promise<void>;
   getSubject: (subjectId: string) => Subject | null;
   getSubjectsForYear: (yearNumber: number) => Array<{ subject: Subject; module: Module }>;
   refreshTrigger: number;
@@ -75,7 +76,6 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
     const existing = currentData.subjectData[subjectId] || {
       subjectId,
       missedSessions: 0,
-      lessons: [],
     };
 
     const updatedData = {
@@ -105,6 +105,32 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  // Update lessons in shared structure (admin only)
+  const updateSubjectLessons = async (subjectId: string, lessons: Lesson[]) => {
+    const newYears = structure.years.map((year) => ({
+      ...year,
+      modules: year.modules.map((module) => ({
+        ...module,
+        subjects: module.subjects.map((subject) =>
+          subject.id === subjectId ? { ...subject, lessons } : subject
+        ),
+      })),
+    }));
+
+    const newStructure = { years: newYears };
+    setStructure(newStructure);
+    
+    // Save to Supabase/localStorage
+    try {
+      await saveSharedStructure(newStructure);
+      console.log('Successfully saved lessons for subject', subjectId);
+    } catch (error) {
+      console.error('Error saving lessons:', error);
+    }
+    
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
   const getSubject = (subjectId: string): Subject | null => {
     void refreshTrigger; // Use to trigger re-render when data changes
     
@@ -121,7 +147,7 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
             assignmentScore: userData?.assignmentScore,
             examScore: userData?.examScore,
             missedSessions: userData?.missedSessions ?? 0,
-            lessons: userData?.lessons ?? [],
+            lessons: subjectStruct.lessons || [],
           };
         }
       }
@@ -143,7 +169,7 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
             assignmentScore: userData?.assignmentScore,
             examScore: userData?.examScore,
             missedSessions: userData?.missedSessions ?? 0,
-            lessons: userData?.lessons ?? [],
+            lessons: subjectStruct.lessons || [],
           },
           module,
         });
@@ -159,6 +185,7 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
         updateStructure,
         getUserSubjectData,
         updateUserSubjectData,
+        updateSubjectLessons,
         getSubject,
         getSubjectsForYear,
         refreshTrigger,

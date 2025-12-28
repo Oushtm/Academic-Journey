@@ -5,6 +5,8 @@ export interface Lesson {
   title: string;
   notes: string;
   reviewStatus: ReviewStatus;
+  youtubeLink?: string; // YouTube video URL
+  courseLink?: string; // Other course/resource link
   pdfFile?: {
     name: string;
     data: string; // base64 encoded PDF
@@ -17,6 +19,7 @@ export interface SubjectStructure {
   id: string;
   name: string;
   coefficient?: number;
+  lessons: Lesson[]; // Lessons are shared (added by admin)
 }
 
 // User-specific data per subject
@@ -27,8 +30,7 @@ export interface SubjectUserData {
   examScore?: number;
   // Attendance (user-specific)
   missedSessions: number;
-  // Lessons (user-specific notes)
-  lessons: Lesson[];
+  // Note: Lessons are now in shared structure (SubjectStructure.lessons)
 }
 
 export interface Subject extends SubjectStructure {
