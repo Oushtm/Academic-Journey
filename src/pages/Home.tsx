@@ -54,37 +54,37 @@ export function Home() {
     .slice(0, 5);
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 md:space-y-8 animate-fade-in">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 rounded-3xl shadow-2xl p-8 md:p-12 text-white animate-slide-up">
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 lg:p-12 text-white animate-slide-up">
         {/* Decorative background elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-primary-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 md:w-96 md:h-96 bg-primary-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
         
-        <div className="relative max-w-4xl z-10 space-y-6">
-          <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-sm font-semibold border border-white/30">
+        <div className="relative max-w-4xl z-10 space-y-4 md:space-y-6">
+          <div className="inline-block px-3 md:px-4 py-1 md:py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs md:text-sm font-semibold border border-white/30">
             👋 Welcome back!
           </div>
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
+          <div className="space-y-3 md:space-y-4">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
               Your Academic Journey
               <span className="block text-white/90">at EMSI</span>
             </h1>
-            <p className="text-xl md:text-2xl text-primary-100 leading-relaxed">
+            <p className="text-base md:text-xl lg:text-2xl text-primary-100 leading-relaxed">
               Track your 5-year academic progress, manage grades, monitor attendance, and stay organized.
             </p>
           </div>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
             <Link
               to="/dashboard"
-              className="group px-8 py-4 bg-white text-primary-700 rounded-xl font-bold hover:bg-primary-50 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 flex items-center space-x-2"
+              className="group px-6 md:px-8 py-3 md:py-4 bg-white text-primary-700 rounded-xl font-bold hover:bg-primary-50 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 flex items-center justify-center space-x-2 text-sm md:text-base"
             >
               <span>View Dashboard</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </Link>
             <Link
               to="/profile"
-              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-xl font-bold hover:bg-white/20 transition-all duration-300 border-2 border-white/30 hover:border-white/50 hover:scale-105 shadow-lg"
+              className="px-6 md:px-8 py-3 md:py-4 bg-white/10 backdrop-blur-md text-white rounded-xl font-bold hover:bg-white/20 transition-all duration-300 border-2 border-white/30 hover:border-white/50 active:scale-95 shadow-lg text-center text-sm md:text-base"
             >
               Manage Profile
             </Link>

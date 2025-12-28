@@ -156,24 +156,24 @@ export function SubjectView() {
       </div>
 
       {/* Scores Card */}
-      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-8 animate-slide-up">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="w-1 h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
-            <h3 className="text-2xl font-extrabold text-gray-900">S1 Grading</h3>
+      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-4 md:p-6 lg:p-8 animate-slide-up">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 md:mb-8">
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <div className="w-1 h-6 md:h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
+            <h3 className="text-xl md:text-2xl font-extrabold text-gray-900">S1 Grading</h3>
           </div>
           {!isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105"
+              className="px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl active:scale-95 w-full sm:w-auto"
             >
               ✏️ Edit Scores
             </button>
           ) : (
-            <div className="space-x-3">
+            <div className="flex sm:flex-row flex-col gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={handleSave}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105"
+                className="flex-1 sm:flex-none px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl active:scale-95"
               >
                 ✓ Save
               </button>
@@ -186,7 +186,7 @@ export function SubjectView() {
                     missedSessions: subject.missedSessions.toString(),
                   });
                 }}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 text-sm font-bold hover:shadow-md"
+                className="flex-1 sm:flex-none px-4 md:px-6 py-2.5 md:py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 text-sm font-bold hover:shadow-md active:scale-95"
               >
                 ✕ Cancel
               </button>
@@ -296,22 +296,22 @@ export function SubjectView() {
 
         {/* Final Score Display */}
         {!isEditing && subject.assignmentScore !== undefined && subject.examScore !== undefined && (
-          <div className="mt-8 pt-8 border-t-2 border-gray-200">
-            <div className="bg-gradient-to-r from-primary-50 via-blue-50 to-indigo-50 rounded-2xl p-6 border-2 border-primary-200">
-              <div className="flex items-center justify-between">
+          <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t-2 border-gray-200">
+            <div className="bg-gradient-to-r from-primary-50 via-blue-50 to-indigo-50 rounded-2xl p-4 md:p-6 border-2 border-primary-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="space-y-2">
-                  <div className="flex items-center space-x-4 text-sm font-semibold text-gray-700">
-                    <span className="px-3 py-1.5 bg-white rounded-lg border border-gray-200">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-4 text-sm font-semibold text-gray-700">
+                    <span className="px-3 py-1.5 bg-white rounded-lg border border-gray-200 whitespace-nowrap">
                       ⚠️ Absences: <strong className="text-gray-900">{subject.missedSessions}</strong>
                     </span>
-                    <span className="px-3 py-1.5 bg-white rounded-lg border border-orange-200 text-orange-700">
+                    <span className="px-3 py-1.5 bg-white rounded-lg border border-orange-200 text-orange-700 whitespace-nowrap">
                       Penalty: <strong>-{calculations.penalty.toFixed(2)} pts</strong>
                     </span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-gray-600 mb-2 font-semibold uppercase tracking-wide">Final S1 Score</div>
-                  <div className={`text-5xl font-extrabold ${
+                <div className="text-center sm:text-right">
+                  <div className="text-xs md:text-sm text-gray-600 mb-2 font-semibold uppercase tracking-wide">Final S1 Score</div>
+                  <div className={`text-4xl md:text-5xl font-extrabold ${
                     calculations.finalS1Score >= 14 ? 'text-green-600' :
                     calculations.finalS1Score >= 12 ? 'text-blue-600' :
                     calculations.finalS1Score >= 10 ? 'text-yellow-600' :
@@ -335,16 +335,16 @@ export function SubjectView() {
       </div>
 
       {/* Lessons & Revision */}
-      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-8 animate-slide-up">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="w-1 h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
-            <h3 className="text-2xl font-extrabold text-gray-900">Lessons & Revision Notes</h3>
+      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-4 md:p-6 lg:p-8 animate-slide-up">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 md:mb-8">
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <div className="w-1 h-6 md:h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
+            <h3 className="text-xl md:text-2xl font-extrabold text-gray-900">Lessons & Revision Notes</h3>
           </div>
                {isAdmin && (
                  <button
                    onClick={handleAddLesson}
-                   className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105"
+                   className="px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl active:scale-95 w-full sm:w-auto"
                  >
                    ➕ Add Lesson
                  </button>
@@ -439,9 +439,9 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
   };
 
   return (
-    <div className="border-2 border-gray-200 rounded-xl p-6 hover:border-primary-300 hover:shadow-md transition-all duration-300 bg-white group">
+    <div className="border-2 border-gray-200 rounded-xl p-4 md:p-6 hover:border-primary-300 hover:shadow-md transition-all duration-300 bg-white group">
       {isEditing ? (
-        <div className="space-y-5 bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-6 border-2 border-primary-300">
+        <div className="space-y-4 md:space-y-5 bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-4 md:p-6 border-2 border-primary-300">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">📝 Lesson Title</label>
             <input
@@ -476,12 +476,12 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">📎 PDF File (Optional)</label>
             {localData.pdfFile ? (
-              <div className="flex items-center justify-between p-4 bg-green-50 border-2 border-green-200 rounded-xl">
-                <div className="flex items-center space-x-3">
-                  <div className="text-2xl">📄</div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{localData.pdfFile.name}</div>
-                    <div className="text-sm text-gray-600">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+                <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
+                  <div className="text-xl md:text-2xl flex-shrink-0">📄</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-gray-900 text-sm md:text-base truncate">{localData.pdfFile.name}</div>
+                    <div className="text-xs md:text-sm text-gray-600">
                       {(localData.pdfFile.size / 1024 / 1024).toFixed(2)} MB
                     </div>
                   </div>
@@ -489,7 +489,7 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
                 <button
                   type="button"
                   onClick={handleRemovePdf}
-                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-semibold"
+                  className="px-3 md:px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-xs md:text-sm font-semibold active:scale-95 w-full sm:w-auto"
                 >
                   Remove
                 </button>
@@ -513,10 +513,10 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
               </div>
             )}
           </div>
-          <div className="flex space-x-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
             <button
               onClick={handleSave}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105"
+              className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 text-sm md:text-base font-bold shadow-lg hover:shadow-xl active:scale-95"
             >
               ✓ Save
             </button>
@@ -525,7 +525,7 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
                 setIsEditing(false);
                 setLocalData(lesson);
               }}
-              className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 font-bold hover:shadow-md"
+              className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 text-sm md:text-base font-bold hover:shadow-md active:scale-95"
             >
               ✕ Cancel
             </button>
@@ -533,24 +533,24 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
         </div>
       ) : (
         <div>
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
             <div className="flex-1">
-              <h4 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-primary-700 transition-colors">{lesson.title}</h4>
-              <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-bold border-2 ${statusColors[lesson.reviewStatus]}`}>
+              <h4 className="font-bold text-lg md:text-xl text-gray-900 mb-2 group-hover:text-primary-700 transition-colors break-words">{lesson.title}</h4>
+              <span className={`inline-block px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-xs font-bold border-2 ${statusColors[lesson.reviewStatus]}`}>
                 {lesson.reviewStatus}
               </span>
             </div>
             {isAdmin && (
-              <div className="flex items-center space-x-2 ml-4">
+              <div className="flex items-center gap-2 sm:ml-4">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:shadow-md transition-all duration-300 text-sm font-semibold"
+                  className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:shadow-md transition-all duration-300 text-xs md:text-sm font-semibold active:scale-95"
                 >
                   ✏️ Edit
                 </button>
                 <button
                   onClick={onDelete}
-                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-300 text-sm font-semibold"
+                  className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-300 text-xs md:text-sm font-semibold active:scale-95"
                 >
                   🗑️ Delete
                 </button>
@@ -563,15 +563,15 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
             </div>
           )}
           {lesson.pdfFile && (
-            <div className="mt-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">📄</span>
+            <div className="mt-4 p-3 md:p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl md:text-2xl">📄</span>
                   </div>
-                  <div>
-                    <div className="font-bold text-gray-900">{lesson.pdfFile.name}</div>
-                    <div className="text-sm text-gray-600">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-gray-900 text-sm md:text-base truncate">{lesson.pdfFile.name}</div>
+                    <div className="text-xs md:text-sm text-gray-600">
                       {(lesson.pdfFile.size / 1024 / 1024).toFixed(2)} MB
                     </div>
                   </div>
@@ -579,7 +579,7 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
                 <a
                   href={`data:application/pdf;base64,${lesson.pdfFile.data}`}
                   download={lesson.pdfFile.name}
-                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-bold shadow-lg hover:shadow-xl hover:scale-105 text-sm"
+                  className="px-4 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-bold shadow-lg hover:shadow-xl active:scale-95 text-xs md:text-sm text-center sm:text-left"
                 >
                   ⬇️ Download
                 </a>

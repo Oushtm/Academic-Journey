@@ -38,26 +38,26 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 rounded-3xl shadow-2xl p-8 md:p-12 text-white">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="relative z-10 space-y-4">
-          <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-sm font-semibold border border-white/30">
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 lg:p-12 text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-primary-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="relative z-10 space-y-3 md:space-y-4">
+          <div className="inline-block px-3 md:px-4 py-1 md:py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs md:text-sm font-semibold border border-white/30">
             📊 Performance Overview
           </div>
           <div className="space-y-2">
-            <h2 className="text-4xl md:text-5xl font-extrabold">Academic Dashboard</h2>
-            <p className="text-xl text-primary-100">Your complete 5-year journey at EMSI • Track your progress and achievements</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold">Academic Dashboard</h2>
+            <p className="text-base md:text-xl text-primary-100">Your complete 5-year journey at EMSI • Track your progress and achievements</p>
           </div>
         </div>
       </div>
 
       {/* Year Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {yearStats.map(({ year, averageScore, totalAbsences, subjectsWithHighAbsences, totalSubjects }, index) => (
           <Link
             key={year.id}
             to={`/year/${year.yearNumber}`}
-            className="group glass-effect rounded-2xl shadow-medium border border-white/50 p-8 card-hover animate-scale-in relative overflow-hidden"
+            className="group glass-effect rounded-2xl shadow-medium border border-white/50 p-5 md:p-6 lg:p-8 card-hover animate-scale-in relative overflow-hidden"
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-100/30 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
@@ -106,12 +106,12 @@ export function Dashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-8">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-1 h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
-          <h3 className="text-3xl font-extrabold text-gray-900">Quick Statistics</h3>
+      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-4 md:p-6 lg:p-8">
+        <div className="flex items-center space-x-2 md:space-x-3 mb-4 md:mb-6">
+          <div className="w-1 h-6 md:h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
+          <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900">Quick Statistics</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
           <div className="relative overflow-hidden p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 shadow-soft group hover:shadow-lg transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-blue-200/50 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
             <div className="relative z-10">
