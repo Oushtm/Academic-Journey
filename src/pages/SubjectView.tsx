@@ -13,6 +13,12 @@ export function SubjectView() {
   const isAdmin = currentUser?.isAdmin ?? false;
   
   const [subject, setSubject] = useState<Subject | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    assignmentScore: '',
+    examScore: '',
+    missedSessions: '0',
+  });
   
   // Update subject when subjectId or refreshTrigger changes
   useEffect(() => {
@@ -66,12 +72,6 @@ export function SubjectView() {
   }
 
   const calculations = calculateSubjectScores(subject);
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    assignmentScore: '',
-    examScore: '',
-    missedSessions: '0',
-  });
 
   const handleSave = async () => {
     if (!subjectId) return;
