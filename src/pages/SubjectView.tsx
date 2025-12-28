@@ -109,16 +109,31 @@ export function SubjectView() {
   };
 
   const handleLessonUpdate = async (lessonId: string, updates: Partial<Lesson>) => {
-    if (!subjectId) return;
-    // Get fresh subject data to ensure we have the latest lessons
-    const currentSubject = getSubject(subjectId);
-    if (!currentSubject) return;
-    const currentLessons = currentSubject.lessons || [];
-    const updatedLessons = currentLessons.map((lesson: Lesson) =>
-      lesson.id === lessonId ? { ...lesson, ...updates } : lesson
-    );
-    await updateSubjectLessons(subjectId, updatedLessons);
-    // The useEffect will reload the subject when refreshTrigger changes
+    if (!subjectId) {
+      console.error('No subjectId provided to handleLessonUpdate');
+      throw new Error('No subjectId provided');
+    }
+    try {
+      console.log('handleLessonUpdate called for lesson:', lessonId, 'with updates:', updates);
+      // Get fresh subject data to ensure we have the latest lessons
+      const currentSubject = getSubject(subjectId);
+      if (!currentSubject) {
+        console.error('Subject not found:', subjectId);
+        throw new Error('Subject not found');
+      }
+      const currentLessons = currentSubject.lessons || [];
+      console.log('Current lessons:', currentLessons);
+      const updatedLessons = currentLessons.map((lesson: Lesson) =>
+        lesson.id === lessonId ? { ...lesson, ...updates } : lesson
+      );
+      console.log('Updated lessons:', updatedLessons);
+      await updateSubjectLessons(subjectId, updatedLessons);
+      console.log('updateSubjectLessons completed');
+      // The useEffect will reload the subject when refreshTrigger changes
+    } catch (error) {
+      console.error('Error in handleLessonUpdate:', error);
+      throw error; // Re-throw to be caught by handleSave
+    }
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
@@ -441,17 +456,27 @@ function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
   };
 
   const handleSave = async () => {
-    // Only pass the actual changes, not the full object with undefined values
-    const updates: Partial<Lesson> = {
-      title: localData.title,
-      notes: localData.notes,
-      reviewStatus: localData.reviewStatus,
-      youtubeLink: localData.youtubeLink,
-      courseLink: localData.courseLink,
-      pdfFile: localData.pdfFile,
-    };
-    await onUpdate(updates);
-    setIsEditing(false);
+    try {
+      console.log('Saving lesson with data:', localData);
+      // Only pass the actual changes, not the full object with undefined values
+      const updates: Partial<Lesson> = {
+        title: localData.title,
+        notes: localData.notes,
+        reviewStatus: localData.reviewStatus,
+        youtubeLink: localData.youtubeLink,
+        courseLink: localData.courseLink,
+        pdfFile: localData.pdfFile,
+      };
+      console.log('Calling onUpdate with:', updates);
+      await onUpdate(updates);
+      console.log('onUpdate completed, closing edit mode');
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving lesson:', error);
+      alert('Failed to save lesson. Please try again.');
+      // Still close edit mode even on error
+      setIsEditing(false);
+    }
   };
 
   return (
