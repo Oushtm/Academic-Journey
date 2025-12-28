@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { loadUsers } from '../services/authStorage';
@@ -9,12 +9,16 @@ export function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isFirstUser, setIsFirstUser] = useState(true);
   
   // Check if any users exist (if not, allow first user to be admin)
-  const users = loadUsers();
-  const isFirstUser = users.length === 0;
+  useEffect(() => {
+    loadUsers().then((users) => {
+      setIsFirstUser(users.length === 0);
+    });
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -25,7 +29,7 @@ export function Login() {
 
     if (isFirstUser) {
       // First user signs up and becomes admin
-      const success = signup(username, password);
+      const success = await signup(username, password);
       if (success) {
         navigate('/');
       } else {
@@ -33,7 +37,7 @@ export function Login() {
       }
     } else {
       // Regular login
-      const success = login(username, password);
+      const success = await login(username, password);
       if (success) {
         navigate('/');
       } else {

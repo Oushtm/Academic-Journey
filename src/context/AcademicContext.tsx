@@ -1,9 +1,17 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { AcademicYear, Subject, SubjectUserData, Module } from '../types';
+import type { AcademicYear, Subject, SubjectUserData, Module, UserData } from '../types';
 import { loadSharedStructure, saveSharedStructure } from '../services/sharedStorage';
 import { loadUserData, saveUserData } from '../services/authStorage';
 import { useAuth } from './AuthContext';
+
+const defaultStructure = {
+  years: Array.from({ length: 5 }, (_, i) => ({
+    id: `year-${i + 1}`,
+    yearNumber: i + 1,
+    modules: [],
+  })),
+};
 
 interface AcademicContextType {
   years: AcademicYear[];
@@ -19,62 +27,86 @@ const AcademicContext = createContext<AcademicContextType | undefined>(undefined
 
 export function AcademicProvider({ children }: { children: ReactNode }) {
   const { currentUser } = useAuth();
-  const [structure, setStructure] = useState(() => loadSharedStructure());
+  const [structure, setStructure] = useState<{ years: AcademicYear[] }>(defaultStructure);
+  const [userDataCache, setUserDataCache] = useState<Record<string, UserData>>({});
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Load user data when user changes
+  // Load structure on mount
+  useEffect(() => {
+    loadSharedStructure().then((loadedStructure) => {
+      setStructure(loadedStructure);
+    });
+  }, []);
+
+  // Load user data cache when user changes
   useEffect(() => {
     if (currentUser) {
-      // Structure is already loaded, user data will be loaded on demand
-      setStructure(loadSharedStructure());
-      setRefreshTrigger((prev) => prev + 1); // Trigger refresh
+      // Load all user data into cache
+      loadUserData(currentUser.id).then((data) => {
+        setUserDataCache({ [currentUser.id]: data });
+      });
+      // Reload structure to get latest
+      loadSharedStructure().then(setStructure);
+      setRefreshTrigger((prev) => prev + 1);
     }
   }, [currentUser]);
 
   const updateStructure = (years: AcademicYear[]) => {
     const newStructure = { years };
     setStructure(newStructure);
-    saveSharedStructure(newStructure);
+    // Save async in background
+    saveSharedStructure(newStructure).catch(console.error);
   };
 
   const getUserSubjectData = (subjectId: string): SubjectUserData | undefined => {
     if (!currentUser) return undefined;
-    const userData = loadUserData(currentUser.id);
-    return userData.subjectData[subjectId];
+    const userData = userDataCache[currentUser.id];
+    return userData?.subjectData[subjectId];
   };
 
   const updateUserSubjectData = (subjectId: string, data: Partial<SubjectUserData>) => {
     if (!currentUser) return;
     
-    const userData = loadUserData(currentUser.id);
-    const existing = userData.subjectData[subjectId] || {
+    const currentData = userDataCache[currentUser.id] || {
+      userId: currentUser.id,
+      subjectData: {},
+    };
+    
+    const existing = currentData.subjectData[subjectId] || {
       subjectId,
       missedSessions: 0,
       lessons: [],
     };
 
-    userData.subjectData[subjectId] = {
-      ...existing,
-      ...data,
+    const updatedData = {
+      ...currentData,
+      subjectData: {
+        ...currentData.subjectData,
+        [subjectId]: {
+          ...existing,
+          ...data,
+        },
+      },
     };
 
-    saveUserData(userData);
-    setRefreshTrigger((prev) => prev + 1); // Trigger refresh to update components
+    setUserDataCache({ ...userDataCache, [currentUser.id]: updatedData });
+    
+    // Save async in background
+    saveUserData(updatedData).catch(console.error);
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   const getSubject = (subjectId: string): Subject | null => {
-    // Use refreshTrigger to ensure we get fresh data when user data changes
-    void refreshTrigger;
+    void refreshTrigger; // Use to trigger re-render when data changes
     
     // Find subject in shared structure
     for (const year of structure.years) {
       for (const module of year.modules) {
         const subjectStruct = module.subjects.find((s) => s.id === subjectId);
         if (subjectStruct) {
-          // Merge with user data
-          const userData = currentUser ? getUserSubjectData(subjectId) : undefined;
+          // Merge with user data from cache
+          const userData = getUserSubjectData(subjectId);
           
-          // Convert SubjectStructure to Subject by adding user data
           return {
             ...subjectStruct,
             assignmentScore: userData?.assignmentScore,
@@ -95,7 +127,7 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
     const result: Array<{ subject: Subject; module: Module }> = [];
     for (const module of year.modules) {
       for (const subjectStruct of module.subjects) {
-        const userData = currentUser ? getUserSubjectData(subjectStruct.id) : undefined;
+        const userData = getUserSubjectData(subjectStruct.id);
         result.push({
           subject: {
             ...subjectStruct,
@@ -135,4 +167,3 @@ export function useAcademic() {
   }
   return context;
 }
-

@@ -15,7 +15,7 @@ export function UserManagement() {
 
   // Load users on mount and when they change
   useEffect(() => {
-    setUsers(loadUsers());
+    loadUsers().then(setUsers);
   }, []);
 
   // Only admin can access this page
@@ -35,7 +35,7 @@ export function UserManagement() {
     );
   }
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -46,10 +46,11 @@ export function UserManagement() {
     }
 
     // Use createUser from AuthContext (admin-only function)
-    const success = createUser(newUsername.trim(), newPassword);
+    const success = await createUser(newUsername.trim(), newPassword);
     if (success) {
       // Reload users list
-      setUsers(loadUsers());
+      const updatedUsers = await loadUsers();
+      setUsers(updatedUsers);
       setNewUsername('');
       setNewPassword('');
       setShowCreateForm(false);
@@ -60,7 +61,7 @@ export function UserManagement() {
     }
   };
 
-  const handleDeleteUser = (userId: string, username: string) => {
+  const handleDeleteUser = async (userId: string, username: string) => {
     if (userId === currentUser.id) {
       alert('You cannot delete your own account!');
       return;
@@ -71,7 +72,7 @@ export function UserManagement() {
     }
 
     const updatedUsers = users.filter((u) => u.id !== userId);
-    saveUsers(updatedUsers);
+    await saveUsers(updatedUsers);
     setUsers(updatedUsers);
     setSuccess(`User "${username}" deleted successfully!`);
     setTimeout(() => setSuccess(''), 3000);
