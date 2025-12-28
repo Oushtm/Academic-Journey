@@ -151,7 +151,16 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
 
   // Update lessons in shared structure (admin only)
   const updateSubjectLessons = async (subjectId: string, lessons: Lesson[]) => {
-    const newYears = structure.years.map((year) => ({
+    // First, ensure we have the latest structure from storage to avoid data loss
+    const currentStructure = await loadSharedStructure();
+    
+    // Verify the structure has data before proceeding
+    if (!currentStructure.years || currentStructure.years.length === 0) {
+      console.error('Cannot update lessons: structure is empty or not loaded');
+      throw new Error('Structure not loaded');
+    }
+
+    const newYears = currentStructure.years.map((year) => ({
       ...year,
       modules: year.modules.map((module) => ({
         ...module,
@@ -172,14 +181,11 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
       setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error('Error saving lessons:', error);
-      // On error, still update state for optimistic UI, but try to reload from storage
-      setStructure(newStructure);
+      // On error, reload from storage to ensure consistency
+      const reloadedStructure = await loadSharedStructure();
+      setStructure(reloadedStructure);
       setRefreshTrigger((prev) => prev + 1);
-      // Reload from storage to ensure consistency
-      loadSharedStructure().then((loadedStructure) => {
-        setStructure(loadedStructure);
-        setRefreshTrigger((prev) => prev + 1);
-      });
+      throw error; // Re-throw so caller knows it failed
     }
   };
 

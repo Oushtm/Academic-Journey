@@ -32,8 +32,16 @@ export async function loadSharedStructure(): Promise<{ years: AcademicYear[] }> 
         }
       } else if (data) {
         const structure = data.data as { years: AcademicYear[] };
-        // Also save to localStorage as backup
-        localStorage.setItem(SHARED_STRUCTURE_KEY, JSON.stringify(structure));
+        // Also save to localStorage as backup (without PDFs to avoid quota issues)
+        try {
+          const dataWithoutPdfs = removePdfsFromStructure(structure);
+          const jsonString = JSON.stringify(dataWithoutPdfs);
+          if (jsonString.length < 4 * 1024 * 1024) { // 4MB limit for safety
+            localStorage.setItem(SHARED_STRUCTURE_KEY, jsonString);
+          }
+        } catch (localError) {
+          console.warn('Could not save to localStorage backup, but Supabase data is available');
+        }
         return structure;
       }
     } catch (error) {

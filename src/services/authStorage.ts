@@ -210,14 +210,7 @@ export async function loadUserData(userId: string): Promise<UserData> {
  * Save user-specific data to Supabase (if configured) and localStorage
  */
 export async function saveUserData(userData: UserData): Promise<void> {
-  // Always save to localStorage as backup
-  try {
-    localStorage.setItem(`${USER_DATA_PREFIX}${userData.userId}`, JSON.stringify(userData));
-  } catch (error) {
-    console.error('Error saving user data to localStorage:', error);
-  }
-
-  // Save to Supabase if configured
+  // Save to Supabase first (if configured) - this is the primary storage
   if (useSupabase()) {
     try {
       const { error } = await supabase!
@@ -233,9 +226,30 @@ export async function saveUserData(userData: UserData): Promise<void> {
 
       if (error) {
         console.error('Error saving user data to Supabase:', error);
+        throw error; // Re-throw to fall through to localStorage
+      } else {
+        console.log('Successfully saved user data to Supabase');
+        // If Supabase save succeeded, also save to localStorage as backup
+        try {
+          localStorage.setItem(`${USER_DATA_PREFIX}${userData.userId}`, JSON.stringify(userData));
+        } catch (localError) {
+          console.warn('Could not save user data to localStorage, but Supabase save succeeded');
+        }
+        return; // Success, exit early
       }
     } catch (error) {
       console.error('Error saving user data to Supabase:', error);
+      // Fall through to localStorage as backup
+    }
+  }
+
+  // Fallback: Save to localStorage only if Supabase is not configured
+  try {
+    localStorage.setItem(`${USER_DATA_PREFIX}${userData.userId}`, JSON.stringify(userData));
+  } catch (error) {
+    console.error('Error saving user data to localStorage:', error);
+    if (!useSupabase()) {
+      throw error; // Only throw if Supabase is not configured
     }
   }
 }
