@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useAcademic } from '../context/AcademicContext';
 import { calculateSubjectScores } from '../utils/calculations';
 import { generateId } from '../services/sharedStorage';
@@ -7,7 +8,9 @@ import type { ReviewStatus, Lesson } from '../types';
 
 export function SubjectView() {
   const { subjectId } = useParams<{ subjectId: string }>();
+  const { currentUser } = useAuth();
   const { getSubject, updateUserSubjectData, years } = useAcademic();
+  const isAdmin = currentUser?.isAdmin ?? false;
   
   const subject = subjectId ? getSubject(subjectId) : null;
 
@@ -51,18 +54,27 @@ export function SubjectView() {
     missedSessions: subject.missedSessions.toString(),
   });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!subjectId) return;
-    updateUserSubjectData(subjectId, {
+    await updateUserSubjectData(subjectId, {
       assignmentScore: formData.assignmentScore ? parseFloat(formData.assignmentScore) : undefined,
       examScore: formData.examScore ? parseFloat(formData.examScore) : undefined,
       missedSessions: parseInt(formData.missedSessions) || 0,
     });
     setIsEditing(false);
+    // Refresh subject data after save
+    const updatedSubject = getSubject(subjectId);
+    if (updatedSubject) {
+      setFormData({
+        assignmentScore: updatedSubject.assignmentScore?.toString() || '',
+        examScore: updatedSubject.examScore?.toString() || '',
+        missedSessions: updatedSubject.missedSessions.toString(),
+      });
+    }
   };
 
-  const handleAddLesson = () => {
-    if (!subjectId) return;
+  const handleAddLesson = async () => {
+    if (!subjectId || !isAdmin) return; // Only admin can add lessons
     const newLesson: Lesson = {
       id: generateId(),
       title: 'New Lesson',
@@ -70,25 +82,25 @@ export function SubjectView() {
       reviewStatus: 'Not Reviewed' as ReviewStatus,
     };
     const currentLessons = subject.lessons || [];
-    updateUserSubjectData(subjectId, {
+    await updateUserSubjectData(subjectId, {
       lessons: [...currentLessons, newLesson],
     });
   };
 
-  const handleLessonUpdate = (lessonId: string, updates: Partial<Lesson>) => {
+  const handleLessonUpdate = async (lessonId: string, updates: Partial<Lesson>) => {
     if (!subjectId) return;
     const currentLessons = subject.lessons || [];
-    updateUserSubjectData(subjectId, {
+    await updateUserSubjectData(subjectId, {
       lessons: currentLessons.map((lesson) =>
         lesson.id === lessonId ? { ...lesson, ...updates } : lesson
       ),
     });
   };
 
-  const handleDeleteLesson = (lessonId: string) => {
-    if (!subjectId) return;
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!subjectId || !isAdmin) return; // Only admin can delete lessons
     const currentLessons = subject.lessons || [];
-    updateUserSubjectData(subjectId, {
+    await updateUserSubjectData(subjectId, {
       lessons: currentLessons.filter((l) => l.id !== lessonId),
     });
   };
@@ -321,12 +333,14 @@ export function SubjectView() {
             <div className="w-1 h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
             <h3 className="text-2xl font-extrabold text-gray-900">Lessons & Revision Notes</h3>
           </div>
-          <button
-            onClick={handleAddLesson}
-            className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            ➕ Add Lesson
-          </button>
+               {isAdmin && (
+                 <button
+                   onClick={handleAddLesson}
+                   className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105"
+                 >
+                   ➕ Add Lesson
+                 </button>
+               )}
         </div>
 
         {!subject.lessons || subject.lessons.length === 0 ? (
@@ -337,14 +351,15 @@ export function SubjectView() {
           </div>
         ) : (
           <div className="space-y-4">
-            {subject.lessons.map((lesson) => (
-              <LessonCard
-                key={lesson.id}
-                lesson={lesson}
-                onUpdate={(updates) => handleLessonUpdate(lesson.id, updates)}
-                onDelete={() => handleDeleteLesson(lesson.id)}
-              />
-            ))}
+                 {subject.lessons.map((lesson) => (
+                   <LessonCard
+                     key={lesson.id}
+                     lesson={lesson}
+                     onUpdate={(updates) => handleLessonUpdate(lesson.id, updates)}
+                     onDelete={() => handleDeleteLesson(lesson.id)}
+                     isAdmin={isAdmin}
+                   />
+                 ))}
           </div>
         )}
       </div>
@@ -356,9 +371,10 @@ interface LessonCardProps {
   lesson: Lesson;
   onUpdate: (updates: Partial<Lesson>) => void;
   onDelete: () => void;
+  isAdmin: boolean; // Add isAdmin prop
 }
 
-function LessonCard({ lesson, onUpdate, onDelete }: LessonCardProps) {
+function LessonCard({ lesson, onUpdate, onDelete, isAdmin }: LessonCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [localData, setLocalData] = useState(lesson);
   
@@ -516,20 +532,22 @@ function LessonCard({ lesson, onUpdate, onDelete }: LessonCardProps) {
                 {lesson.reviewStatus}
               </span>
             </div>
-            <div className="flex items-center space-x-2 ml-4">
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:shadow-md transition-all duration-300 text-sm font-semibold"
-              >
-                ✏️ Edit
-              </button>
-              <button
-                onClick={onDelete}
-                className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-300 text-sm font-semibold"
-              >
-                🗑️ Delete
-              </button>
-            </div>
+            {isAdmin && (
+              <div className="flex items-center space-x-2 ml-4">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:shadow-md transition-all duration-300 text-sm font-semibold"
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  onClick={onDelete}
+                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-300 text-sm font-semibold"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            )}
           </div>
           {lesson.notes && (
             <div className="mt-4 p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 text-sm text-gray-700 whitespace-pre-wrap font-medium leading-relaxed">

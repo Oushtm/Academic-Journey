@@ -17,7 +17,7 @@ interface AcademicContextType {
   years: AcademicYear[];
   updateStructure: (years: AcademicYear[]) => void;
   getUserSubjectData: (subjectId: string) => SubjectUserData | undefined;
-  updateUserSubjectData: (subjectId: string, data: Partial<SubjectUserData>) => void;
+  updateUserSubjectData: (subjectId: string, data: Partial<SubjectUserData>) => Promise<void>;
   getSubject: (subjectId: string) => Subject | null;
   getSubjectsForYear: (yearNumber: number) => Array<{ subject: Subject; module: Module }>;
   refreshTrigger: number;
@@ -64,7 +64,7 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
     return userData?.subjectData[subjectId];
   };
 
-  const updateUserSubjectData = (subjectId: string, data: Partial<SubjectUserData>) => {
+  const updateUserSubjectData = async (subjectId: string, data: Partial<SubjectUserData>) => {
     if (!currentUser) return;
     
     const currentData = userDataCache[currentUser.id] || {
@@ -89,10 +89,19 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
       },
     };
 
+    // Update cache immediately for UI responsiveness
     setUserDataCache({ ...userDataCache, [currentUser.id]: updatedData });
     
-    // Save async in background
-    saveUserData(updatedData).catch(console.error);
+    // Save to Supabase/localStorage and wait for completion
+    try {
+      await saveUserData(updatedData);
+      console.log('Successfully saved user subject data for', subjectId);
+    } catch (error) {
+      console.error('Error saving user subject data:', error);
+      // Revert cache update on error?
+      // For now, we'll keep the optimistic update
+    }
+    
     setRefreshTrigger((prev) => prev + 1);
   };
 

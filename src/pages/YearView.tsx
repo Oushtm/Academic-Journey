@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useAcademic } from '../context/AcademicContext';
 import { calculateSubjectScores } from '../utils/calculations';
 import { AddModuleForm } from '../components/AddModuleForm';
@@ -7,9 +8,11 @@ import { AddSubjectForm } from '../components/AddSubjectForm';
 
 export function YearView() {
   const { yearNumber } = useParams<{ yearNumber: string }>();
+  const { currentUser } = useAuth();
   const { years, getSubjectsForYear } = useAcademic();
   const [addingModule, setAddingModule] = useState<string | null>(null);
   const [addingSubject, setAddingSubject] = useState<string | null>(null);
+  const isAdmin = currentUser?.isAdmin ?? false;
   
   const year = years.find((y) => y.yearNumber === parseInt(yearNumber || '0'));
 
@@ -124,24 +127,26 @@ export function YearView() {
       <div className="space-y-6">
         {year.modules.map((module) => (
           <div key={module.id} className="glass-effect rounded-2xl shadow-medium border border-white/50 p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-extrabold text-gray-900">{module.name}</h3>
-              {addingSubject === module.id ? (
-                <button
-                  onClick={() => setAddingSubject(null)}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all text-sm font-semibold"
-                >
-                  Cancel
-                </button>
-              ) : (
-                <button
-                  onClick={() => setAddingSubject(module.id)}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all text-sm font-semibold"
-                >
-                  ➕ Add Subject
-                </button>
-              )}
-            </div>
+                 <div className="flex justify-between items-center mb-6">
+                   <h3 className="text-2xl font-extrabold text-gray-900">{module.name}</h3>
+                   {isAdmin && (
+                     addingSubject === module.id ? (
+                       <button
+                         onClick={() => setAddingSubject(null)}
+                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all text-sm font-semibold"
+                       >
+                         Cancel
+                       </button>
+                     ) : (
+                       <button
+                         onClick={() => setAddingSubject(module.id)}
+                         className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all text-sm font-semibold"
+                       >
+                         ➕ Add Subject
+                       </button>
+                     )
+                   )}
+                 </div>
             {addingSubject === module.id && (
               <div className="mb-6">
                 <AddSubjectForm module={module} onClose={() => setAddingSubject(null)} />
