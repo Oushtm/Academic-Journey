@@ -4,15 +4,34 @@ import { useAuth } from '../context/AuthContext';
 import { useAcademic } from '../context/AcademicContext';
 import { calculateSubjectScores } from '../utils/calculations';
 import { generateId } from '../services/sharedStorage';
-import type { ReviewStatus, Lesson } from '../types';
+import type { ReviewStatus, Lesson, Subject } from '../types';
 
 export function SubjectView() {
   const { subjectId } = useParams<{ subjectId: string }>();
   const { currentUser } = useAuth();
-  const { getSubject, updateUserSubjectData, years } = useAcademic();
+  const { getSubject, updateUserSubjectData, years, refreshTrigger } = useAcademic();
   const isAdmin = currentUser?.isAdmin ?? false;
   
-  const subject = subjectId ? getSubject(subjectId) : null;
+  const [subject, setSubject] = useState<Subject | null>(null);
+  
+  // Update subject when subjectId or refreshTrigger changes
+  useEffect(() => {
+    if (subjectId) {
+      const loadedSubject = getSubject(subjectId);
+      setSubject(loadedSubject);
+    }
+  }, [subjectId, refreshTrigger, getSubject]);
+
+  // Update form data when subject changes
+  useEffect(() => {
+    if (subject) {
+      setFormData({
+        assignmentScore: subject.assignmentScore?.toString() || '',
+        examScore: subject.examScore?.toString() || '',
+        missedSessions: subject.missedSessions.toString(),
+      });
+    }
+  }, [subject]);
 
   // Find module and year info
   let module = null;
@@ -49,9 +68,9 @@ export function SubjectView() {
   const calculations = calculateSubjectScores(subject);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    assignmentScore: subject.assignmentScore?.toString() || '',
-    examScore: subject.examScore?.toString() || '',
-    missedSessions: subject.missedSessions.toString(),
+    assignmentScore: '',
+    examScore: '',
+    missedSessions: '0',
   });
 
   const handleSave = async () => {
@@ -91,7 +110,7 @@ export function SubjectView() {
     if (!subjectId) return;
     const currentLessons = subject.lessons || [];
     await updateUserSubjectData(subjectId, {
-      lessons: currentLessons.map((lesson) =>
+      lessons: currentLessons.map((lesson: Lesson) =>
         lesson.id === lessonId ? { ...lesson, ...updates } : lesson
       ),
     });
@@ -101,20 +120,9 @@ export function SubjectView() {
     if (!subjectId || !isAdmin) return; // Only admin can delete lessons
     const currentLessons = subject.lessons || [];
     await updateUserSubjectData(subjectId, {
-      lessons: currentLessons.filter((l) => l.id !== lessonId),
+      lessons: currentLessons.filter((l: Lesson) => l.id !== lessonId),
     });
   };
-
-  // Update form data when subject changes
-  useEffect(() => {
-    if (subject) {
-      setFormData({
-        assignmentScore: subject.assignmentScore?.toString() || '',
-        examScore: subject.examScore?.toString() || '',
-        missedSessions: subject.missedSessions.toString(),
-      });
-    }
-  }, [subject]);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -351,7 +359,7 @@ export function SubjectView() {
           </div>
         ) : (
           <div className="space-y-4">
-                 {subject.lessons.map((lesson) => (
+                 {subject.lessons.map((lesson: Lesson) => (
                    <LessonCard
                      key={lesson.id}
                      lesson={lesson}
