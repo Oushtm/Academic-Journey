@@ -17,7 +17,14 @@ export async function loadUsers(): Promise<User[]> {
         .select('*')
         .order('created_at', { ascending: true });
 
-      if (!error && data) {
+      if (error) {
+        console.error('Error loading users from Supabase:', error);
+        // If table doesn't exist (404), fall back to localStorage
+        if (error.code === 'PGRST116' || error.message?.includes('does not exist')) {
+          console.warn('Users table does not exist yet. Please run the SQL script in Supabase.');
+          return [];
+        }
+      } else if (data) {
         // Also save to localStorage as backup
         localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(data));
         return data;
@@ -118,7 +125,13 @@ export async function loadUserData(userId: string): Promise<UserData> {
         .eq('user_id', userId)
         .single();
 
-      if (!error && data) {
+      if (error) {
+        console.error('Error loading user data from Supabase:', error);
+        // If table doesn't exist (404), fall back to localStorage
+        if (error.code === 'PGRST116' || error.message?.includes('does not exist')) {
+          console.warn('User data table does not exist yet. Please run the SQL script in Supabase.');
+        }
+      } else if (data) {
         const userData = {
           userId,
           subjectData: data.subject_data || {},

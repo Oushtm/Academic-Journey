@@ -24,7 +24,13 @@ export async function loadSharedStructure(): Promise<{ years: AcademicYear[] }> 
         .eq('id', 'main')
         .single();
 
-      if (!error && data) {
+      if (error) {
+        console.error('Error loading shared structure from Supabase:', error);
+        // If table doesn't exist (404), fall back to localStorage
+        if (error.code === 'PGRST116' || error.message?.includes('does not exist')) {
+          console.warn('Shared structure table does not exist yet. Please run the SQL script in Supabase.');
+        }
+      } else if (data) {
         const structure = data.data as { years: AcademicYear[] };
         // Also save to localStorage as backup
         localStorage.setItem(SHARED_STRUCTURE_KEY, JSON.stringify(structure));
