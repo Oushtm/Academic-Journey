@@ -118,17 +118,25 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
     }));
 
     const newStructure = { years: newYears };
-    setStructure(newStructure);
     
-    // Save to Supabase/localStorage
+    // Save to Supabase/localStorage first
     try {
       await saveSharedStructure(newStructure);
       console.log('Successfully saved lessons for subject', subjectId);
+      // Update state after successful save
+      setStructure(newStructure);
+      setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
       console.error('Error saving lessons:', error);
+      // On error, still update state for optimistic UI, but try to reload from storage
+      setStructure(newStructure);
+      setRefreshTrigger((prev) => prev + 1);
+      // Reload from storage to ensure consistency
+      loadSharedStructure().then((loadedStructure) => {
+        setStructure(loadedStructure);
+        setRefreshTrigger((prev) => prev + 1);
+      });
     }
-    
-    setRefreshTrigger((prev) => prev + 1);
   };
 
   const getSubject = (subjectId: string): Subject | null => {

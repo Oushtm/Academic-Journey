@@ -102,11 +102,7 @@ export function SubjectView() {
     };
     const currentLessons = subject.lessons || [];
     await updateSubjectLessons(subjectId, [...currentLessons, newLesson]);
-    // Refresh subject to get updated lessons
-    const updatedSubject = getSubject(subjectId);
-    if (updatedSubject) {
-      setSubject(updatedSubject);
-    }
+    // The useEffect will reload the subject when refreshTrigger changes
   };
 
   const handleLessonUpdate = async (lessonId: string, updates: Partial<Lesson>) => {
@@ -116,22 +112,14 @@ export function SubjectView() {
       lesson.id === lessonId ? { ...lesson, ...updates } : lesson
     );
     await updateSubjectLessons(subjectId, updatedLessons);
-    // Refresh subject to get updated lessons
-    const updatedSubject = getSubject(subjectId);
-    if (updatedSubject) {
-      setSubject(updatedSubject);
-    }
+    // The useEffect will reload the subject when refreshTrigger changes
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
     if (!subjectId || !isAdmin) return; // Only admin can delete lessons
     const currentLessons = subject.lessons || [];
     await updateSubjectLessons(subjectId, currentLessons.filter((l: Lesson) => l.id !== lessonId));
-    // Refresh subject to get updated lessons
-    const updatedSubject = getSubject(subjectId);
-    if (updatedSubject) {
-      setSubject(updatedSubject);
-    }
+    // The useEffect will reload the subject when refreshTrigger changes
   };
 
   return (
