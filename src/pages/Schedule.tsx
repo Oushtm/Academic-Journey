@@ -11,7 +11,6 @@ import {
   markAbsence,
   getAbsencesForUser,
 } from '../services/scheduleStorage';
-import { weeklyScheduleData } from '../utils/addWeeklySchedule';
 
 export function Schedule() {
   const { currentUser } = useAuth();
@@ -48,21 +47,6 @@ export function Schedule() {
     loadEvents();
   }, [viewMode]);
 
-  // Auto-add classes on first load (only for admin)
-  useEffect(() => {
-    const autoAddClasses = async () => {
-      if (!currentUser?.isAdmin) return;
-      if (events.length === 0) {
-        console.log('No classes found. Auto-adding all 14 weekly classes...');
-        await handleAddAllWeeklyClasses();
-      }
-    };
-    
-    // Only run once when component mounts and user is admin
-    if (currentUser?.isAdmin && events.length === 0) {
-      autoAddClasses();
-    }
-  }, [currentUser?.isAdmin]);
 
   const loadEvents = async () => {
     const loadedEvents = await loadScheduleEvents();
@@ -270,47 +254,6 @@ export function Schedule() {
     setCurrentDate(new Date());
   };
 
-  const handleAddAllWeeklyClasses = async () => {
-    if (!currentUser) return;
-    
-    if (!confirm('This will add all 14 weekly classes to your schedule. Continue?')) {
-      return;
-    }
-
-    try {
-      console.log('Starting to add classes. Total to add:', weeklyScheduleData.length);
-      
-      const newEvents: ScheduleEvent[] = [];
-      for (let i = 0; i < weeklyScheduleData.length; i++) {
-        const classData = weeklyScheduleData[i];
-        const newEvent: ScheduleEvent = {
-          ...classData,
-          id: `event-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,
-          createdBy: currentUser.id,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        };
-        newEvents.push(newEvent);
-        console.log(`Added class ${i + 1}/${weeklyScheduleData.length}:`, newEvent.title, newEvent.dayOfWeek);
-      }
-      
-      // Add all events at once
-      for (const event of newEvents) {
-        await addScheduleEvent(event);
-      }
-      
-      await loadEvents();
-      
-      // Verify (silent)
-      const stored = localStorage.getItem('schedule_events');
-      const parsedEvents = stored ? JSON.parse(stored) : [];
-      console.log('Verification: Total events in storage:', parsedEvents.length);
-      console.log('Friday events:', parsedEvents.filter((e: any) => e.dayOfWeek === 'friday'));
-    } catch (error) {
-      console.error('Error adding weekly classes:', error);
-      alert('❌ Error adding classes. Please try again.');
-    }
-  };
 
   return (
     <div className="space-y-6">
