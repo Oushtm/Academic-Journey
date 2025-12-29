@@ -93,13 +93,13 @@ export function Home() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="group glass-effect rounded-2xl shadow-soft p-6 border border-white/50 card-hover animate-scale-in">
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Overall Average</div>
-            <div className="text-3xl transform group-hover:scale-110 transition-transform duration-300">📊</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="group glass-effect rounded-2xl shadow-soft p-5 sm:p-6 border border-white/50 card-hover animate-scale-in active:scale-95 touch-manipulation">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Overall Average</div>
+            <div className="text-2xl sm:text-3xl transform group-hover:scale-110 transition-transform duration-300">📊</div>
           </div>
-          <div className="text-4xl font-extrabold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent mb-2">
+          <div className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent mb-2">
             {averageScore !== null ? averageScore.toFixed(2) : '—'}
           </div>
           {averageScore !== null && (
@@ -113,61 +113,61 @@ export function Home() {
           )}
         </div>
 
-        <div className="group glass-effect rounded-2xl shadow-soft p-6 border border-white/50 card-hover animate-scale-in" style={{ animationDelay: '0.1s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Total Modules</div>
-            <div className="text-3xl transform group-hover:scale-110 transition-transform duration-300">📚</div>
+        <div className="group glass-effect rounded-2xl shadow-soft p-5 sm:p-6 border border-white/50 card-hover animate-scale-in active:scale-95 touch-manipulation" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Total Modules</div>
+            <div className="text-2xl sm:text-3xl transform group-hover:scale-110 transition-transform duration-300">📚</div>
           </div>
-          <div className="text-4xl font-extrabold text-gray-900 mb-2">{totalModules}</div>
-          <div className="text-sm text-gray-500 font-medium">Across all years</div>
+          <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">{totalModules}</div>
+          <div className="text-xs sm:text-sm text-gray-500 font-medium">Across all years</div>
         </div>
 
-        <div className="group glass-effect rounded-2xl shadow-soft p-6 border border-white/50 card-hover animate-scale-in" style={{ animationDelay: '0.2s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Total Subjects</div>
-            <div className="text-3xl transform group-hover:scale-110 transition-transform duration-300">📖</div>
+        <div className="group glass-effect rounded-2xl shadow-soft p-5 sm:p-6 border border-white/50 card-hover animate-scale-in active:scale-95 touch-manipulation" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Total Subjects</div>
+            <div className="text-2xl sm:text-3xl transform group-hover:scale-110 transition-transform duration-300">📖</div>
           </div>
-          <div className="text-4xl font-extrabold text-gray-900 mb-2">{totalSubjects}</div>
-          <div className="text-sm text-gray-500 font-medium">In your curriculum</div>
+          <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">{totalSubjects}</div>
+          <div className="text-xs sm:text-sm text-gray-500 font-medium">In your curriculum</div>
         </div>
 
-        <div className="group glass-effect rounded-2xl shadow-soft p-6 border border-white/50 card-hover animate-scale-in" style={{ animationDelay: '0.3s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Total Absences</div>
-            <div className="text-3xl transform group-hover:scale-110 transition-transform duration-300">⚠️</div>
+        <div className="group glass-effect rounded-2xl shadow-soft p-5 sm:p-6 border border-white/50 card-hover animate-scale-in active:scale-95 touch-manipulation" style={{ animationDelay: '0.3s' }}>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Total Absences</div>
+            <div className="text-2xl sm:text-3xl transform group-hover:scale-110 transition-transform duration-300">⚠️</div>
           </div>
-          <div className={`text-4xl font-extrabold mb-2 ${totalAbsences > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
+          <div className={`text-3xl sm:text-4xl font-extrabold mb-2 ${totalAbsences > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
             {totalAbsences}
           </div>
-          <div className="text-sm text-gray-500 font-medium">Sessions missed</div>
+          <div className="text-xs sm:text-sm text-gray-500 font-medium">Sessions missed</div>
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="glass-effect rounded-2xl shadow-medium p-8 border border-white/50">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-1 h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
-          <h2 className="text-3xl font-extrabold text-gray-900">Quick Actions</h2>
+      <div className="glass-effect rounded-2xl shadow-medium p-5 sm:p-8 border border-white/50">
+        <div className="flex items-center space-x-3 mb-5 sm:mb-6">
+          <div className="w-1 h-6 sm:h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Quick Actions</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           {years.map((year, index) => (
             <Link
               key={year.id}
               to={`/year/${year.yearNumber}`}
-              className="group relative p-6 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl hover:border-primary-400 hover:shadow-lg transition-all duration-300 overflow-hidden"
+              className="group relative p-5 sm:p-6 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl hover:border-primary-400 hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-95 touch-manipulation"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary-100/50 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-primary-100/50 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
               <div className="relative flex items-center justify-between z-10">
                 <div>
-                  <div className="font-bold text-xl text-gray-900 group-hover:text-primary-700 mb-1">
+                  <div className="font-bold text-lg sm:text-xl text-gray-900 group-hover:text-primary-700 mb-1">
                     Year {year.yearNumber}
                   </div>
-                  <div className="text-sm text-gray-600 font-medium">
+                  <div className="text-xs sm:text-sm text-gray-600 font-medium">
                     {year.modules.length} modules • {year.modules.reduce((sum, m) => sum + m.subjects.length, 0)} subjects
                   </div>
                 </div>
-                <div className="text-2xl text-gray-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all duration-300">→</div>
+                <div className="text-xl sm:text-2xl text-gray-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all duration-300">→</div>
               </div>
             </Link>
           ))}
@@ -176,14 +176,14 @@ export function Home() {
 
       {/* Priority Subjects */}
       {prioritySubjects.length > 0 && (
-        <div className="relative overflow-hidden bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 rounded-2xl shadow-medium p-8 border-2 border-red-200/50 animate-slide-up">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-red-200/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 rounded-2xl shadow-medium p-5 sm:p-8 border-2 border-red-200/50 animate-slide-up">
+          <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-red-200/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="relative z-10">
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                <span className="text-2xl">🔴</span>
+            <div className="flex items-center mb-5 sm:mb-6">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-500 rounded-xl flex items-center justify-center mr-3 sm:mr-4 shadow-lg flex-shrink-0">
+                <span className="text-xl sm:text-2xl">🔴</span>
               </div>
-              <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-700 to-orange-700 bg-clip-text text-transparent">
+              <h2 className="text-xl sm:text-3xl font-extrabold bg-gradient-to-r from-red-700 to-orange-700 bg-clip-text text-transparent">
                 Subjects Requiring Attention
               </h2>
             </div>
@@ -192,19 +192,19 @@ export function Home() {
                 <Link
                   key={subject.id}
                   to={`/subject/${subject.id}`}
-                  className="block group p-5 bg-white/90 backdrop-blur-sm rounded-xl border-2 border-red-200 hover:border-red-400 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+                  className="block group p-4 sm:p-5 bg-white/90 backdrop-blur-sm rounded-xl border-2 border-red-200 hover:border-red-400 hover:shadow-lg active:scale-[0.98] transition-all duration-300 touch-manipulation"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-bold text-lg text-gray-900 group-hover:text-red-700 mb-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm sm:text-lg text-gray-900 group-hover:text-red-700 mb-1 truncate">
                         Year {year.yearNumber} • {module.name} • {subject.name}
                       </div>
-                      <div className="text-sm text-gray-600 font-medium">
+                      <div className="text-xs sm:text-sm text-gray-600 font-medium">
                         Score: <span className="font-bold text-red-600">{calculations.finalS1Score.toFixed(2)}/20</span>
                       </div>
                     </div>
-                    <div className="ml-4 px-4 py-2 bg-red-100 rounded-lg">
-                      <div className="text-2xl font-extrabold text-red-600">
+                    <div className="px-3 sm:px-4 py-2 bg-red-100 rounded-lg flex-shrink-0">
+                      <div className="text-xl sm:text-2xl font-extrabold text-red-600">
                         {calculations.finalS1Score.toFixed(1)}
                       </div>
                     </div>
@@ -218,14 +218,14 @@ export function Home() {
 
       {/* Absence Warnings */}
       {subjectsWithAbsences.length > 0 && (
-        <div className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl shadow-medium p-8 border-2 border-orange-200/50 animate-slide-up">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl shadow-medium p-5 sm:p-8 border-2 border-orange-200/50 animate-slide-up">
+          <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-orange-200/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="relative z-10">
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mr-4 shadow-lg">
-                <span className="text-2xl">⚠️</span>
+            <div className="flex items-center mb-5 sm:mb-6">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-xl flex items-center justify-center mr-3 sm:mr-4 shadow-lg flex-shrink-0">
+                <span className="text-xl sm:text-2xl">⚠️</span>
               </div>
-              <h2 className="text-3xl font-extrabold bg-gradient-to-r from-orange-700 to-red-700 bg-clip-text text-transparent">
+              <h2 className="text-xl sm:text-3xl font-extrabold bg-gradient-to-r from-orange-700 to-red-700 bg-clip-text text-transparent">
                 Most Affected by Absences
               </h2>
             </div>
@@ -234,20 +234,20 @@ export function Home() {
                 <Link
                   key={subject.id}
                   to={`/subject/${subject.id}`}
-                  className="block group p-5 bg-white/90 backdrop-blur-sm rounded-xl border-2 border-orange-200 hover:border-orange-400 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
+                  className="block group p-4 sm:p-5 bg-white/90 backdrop-blur-sm rounded-xl border-2 border-orange-200 hover:border-orange-400 hover:shadow-lg active:scale-[0.98] transition-all duration-300 touch-manipulation"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-bold text-lg text-gray-900 group-hover:text-orange-700 mb-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm sm:text-lg text-gray-900 group-hover:text-orange-700 mb-1 truncate">
                         Year {year.yearNumber} • {module.name} • {subject.name}
                       </div>
-                      <div className="text-sm text-gray-600 font-medium">
+                      <div className="text-xs sm:text-sm text-gray-600 font-medium">
                         {subject.missedSessions} absence{subject.missedSessions !== 1 ? 's' : ''} • 
-                        <span className="font-bold text-orange-600 ml-1">Penalty: -{calculations.penalty.toFixed(2)} points</span>
+                        <span className="font-bold text-orange-600 ml-1">Penalty: -{calculations.penalty.toFixed(2)} pts</span>
                       </div>
                     </div>
-                    <div className="ml-4 px-4 py-2 bg-orange-100 rounded-lg">
-                      <div className="text-2xl font-extrabold text-orange-600">
+                    <div className="px-3 sm:px-4 py-2 bg-orange-100 rounded-lg flex-shrink-0">
+                      <div className="text-xl sm:text-2xl font-extrabold text-orange-600">
                         -{calculations.penalty.toFixed(1)}
                       </div>
                     </div>
@@ -260,12 +260,12 @@ export function Home() {
       )}
 
       {/* Year Progress Overview */}
-      <div className="glass-effect rounded-2xl shadow-medium p-8 border border-white/50">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-1 h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
-          <h2 className="text-3xl font-extrabold text-gray-900">Academic Years Overview</h2>
+      <div className="glass-effect rounded-2xl shadow-medium p-5 sm:p-8 border border-white/50">
+        <div className="flex items-center space-x-3 mb-5 sm:mb-6">
+          <div className="w-1 h-6 sm:h-8 bg-gradient-to-b from-primary-600 to-primary-800 rounded-full"></div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Academic Years Overview</h2>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {years.map((year) => {
             const yearSubjectsData = getSubjectsForYear(year.yearNumber);
             const yearSubjects = yearSubjectsData.map(({ subject }) => subject);
@@ -283,16 +283,16 @@ export function Home() {
                <Link
                  key={year.id}
                  to={`/year/${year.yearNumber}`}
-                 className="block p-6 border-2 rounded-xl hover:border-primary-500 hover:shadow-lg transition-all group bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:shadow-primary-500/10"
+                 className="block p-4 sm:p-6 border-2 rounded-xl hover:border-primary-500 hover:shadow-lg transition-all group bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:shadow-primary-500/10 active:scale-[0.98] touch-manipulation"
                >
-                 <div className="flex items-center justify-between">
-                   <div className="flex-1">
-                     <div className="flex items-center space-x-4 mb-3">
-                       <h3 className="text-2xl font-bold text-gray-900 group-hover:text-primary-700">
+                 <div className="flex items-center justify-between gap-3">
+                   <div className="flex-1 min-w-0">
+                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
+                       <h3 className="text-xl sm:text-2xl font-bold text-gray-900 group-hover:text-primary-700">
                          Year {year.yearNumber}
                        </h3>
                        {yearAverage !== null && (
-                         <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${
+                         <span className={`px-3 sm:px-4 py-1 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border w-fit ${
                            yearAverage >= 14 
                              ? 'bg-green-100 text-green-700 border-green-300' :
                            yearAverage >= 12 
@@ -305,7 +305,7 @@ export function Home() {
                          </span>
                        )}
                      </div>
-                     <div className="flex items-center space-x-6 text-sm text-gray-600 font-medium">
+                     <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600 font-medium">
                        <span>{year.modules.length} modules</span>
                        <span>{yearSubjects.length} subjects</span>
                        <span>
@@ -313,7 +313,7 @@ export function Home() {
                        </span>
                      </div>
                    </div>
-                   <div className="text-gray-400 group-hover:text-primary-600 text-2xl group-hover:translate-x-2 transition-all duration-300">→</div>
+                   <div className="text-gray-400 group-hover:text-primary-600 text-xl sm:text-2xl group-hover:translate-x-2 transition-all duration-300 flex-shrink-0">→</div>
                  </div>
                </Link>
              );

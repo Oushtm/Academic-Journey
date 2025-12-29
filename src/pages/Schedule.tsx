@@ -64,20 +64,27 @@ export function Schedule() {
   };
 
   const handleMarkAbsence = async (event: ScheduleEvent, date: Date) => {
-    if (!currentUser || !event.subjectId) return;
+    if (!currentUser) return;
     
     const dateStr = date.toISOString().split('T')[0];
-    await markAbsence(currentUser.id, event.id, event.subjectId, dateStr);
     
-    // Update the subject's missed sessions count
-    const currentData = getUserSubjectData(event.subjectId);
-    const currentMissed = currentData?.missedSessions || 0;
-    await updateUserSubjectData(event.subjectId, {
-      missedSessions: currentMissed + 1,
-    });
-    
-    await loadAbsenceCounts();
-    alert(`✅ Marked as absent for ${event.title}. This will be counted in your attendance.`);
+    // If event has a subject, update the subject's missed sessions
+    if (event.subjectId) {
+      await markAbsence(currentUser.id, event.id, event.subjectId, dateStr);
+      
+      const currentData = getUserSubjectData(event.subjectId);
+      const currentMissed = currentData?.missedSessions || 0;
+      await updateUserSubjectData(event.subjectId, {
+        missedSessions: currentMissed + 1,
+      });
+      
+      await loadAbsenceCounts();
+      alert(`✅ Marked as absent for ${event.title}.\n\n📊 Total absences: ${currentMissed + 1}\n⚠️ Penalty: ${((currentMissed + 1) * 0.5).toFixed(1)} points`);
+    } else {
+      // If no subject linked, just record the absence
+      await markAbsence(currentUser.id, event.id, 'no-subject', dateStr);
+      alert(`✅ Marked as absent for ${event.title}.\n\n⚠️ Note: This class is not linked to a subject, so it won't affect your grade.`);
+    }
   };
 
   const handleAddEvent = async () => {
@@ -258,18 +265,18 @@ export function Schedule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-effect rounded-2xl p-6 shadow-lg border border-gray-200/50">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="glass-effect rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200/50">
+        <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
               📅 Emploi du Temps
             </h1>
-            <p className="text-gray-600 mt-1">Weekly Schedule & Attendance Tracking</p>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Weekly Schedule & Attendance</p>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap w-full">
             <button
               onClick={() => setViewMode('week')}
-              className={`px-4 py-2 rounded-xl transition-colors font-semibold text-sm ${
+              className={`flex-1 sm:flex-none px-4 py-3 sm:py-2 rounded-xl transition-colors font-semibold text-sm ${
                 viewMode === 'week'
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -279,7 +286,7 @@ export function Schedule() {
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-4 py-2 rounded-xl transition-colors font-semibold text-sm ${
+              className={`flex-1 sm:flex-none px-4 py-3 sm:py-2 rounded-xl transition-colors font-semibold text-sm ${
                 viewMode === 'list'
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -290,7 +297,6 @@ export function Schedule() {
             <button
               onClick={() => {
                 loadEvents();
-                // Debug: Show what's in storage
                 const stored = localStorage.getItem('schedule_events');
                 const parsedEvents = stored ? JSON.parse(stored) : [];
                 console.log('=== STORAGE DEBUG ===');
@@ -299,7 +305,7 @@ export function Schedule() {
                 console.log('Friday events:', parsedEvents.filter((e: any) => e.dayOfWeek === 'friday'));
                 console.log('All days:', parsedEvents.filter((e: any) => e.isRecurring).map((e: any) => ({ title: e.title, day: e.dayOfWeek })));
               }}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all font-semibold text-sm"
+              className="flex-1 sm:flex-none px-4 py-3 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all font-semibold text-sm"
             >
               🔄 Refresh
             </button>
@@ -309,7 +315,7 @@ export function Schedule() {
                   resetForm();
                   setShowEventModal(true);
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
+                className="flex-1 sm:flex-none px-4 py-3 sm:py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
               >
                 ➕ Add Event
               </button>
@@ -320,36 +326,36 @@ export function Schedule() {
 
       {/* Weekly View */}
       {viewMode === 'week' && (
-        <div className="glass-effect rounded-2xl p-6 shadow-lg border border-gray-200/50">
+        <div className="glass-effect rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200/50">
           {/* Week Navigation */}
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-4 sm:mb-6 gap-2">
             <button
               onClick={previousWeek}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-semibold"
+              className="px-4 py-3 sm:py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-semibold text-sm sm:text-base order-2 sm:order-1"
             >
-              ← Previous Week
+              ← Previous
             </button>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 order-1 sm:order-2">
               <button
                 onClick={goToToday}
-                className="px-4 py-2 bg-primary-100 text-primary-700 hover:bg-primary-200 rounded-xl transition-colors font-semibold"
+                className="px-4 py-3 sm:py-2 bg-primary-100 text-primary-700 hover:bg-primary-200 rounded-xl transition-colors font-semibold text-sm sm:text-base"
               >
                 📍 Today
               </button>
-              <h2 className="text-xl font-bold text-gray-800 px-4 py-2">
+              <h2 className="text-base sm:text-xl font-bold text-gray-800 px-4 py-3 sm:py-2 text-center bg-gray-50 rounded-xl">
                 Week of {weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </h2>
             </div>
             <button
               onClick={nextWeek}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-semibold"
+              className="px-4 py-3 sm:py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-semibold text-sm sm:text-base order-3"
             >
-              Next Week →
+              Next →
             </button>
           </div>
 
           {/* Weekly Schedule Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 sm:gap-4">
             {weekDates.map((date, index) => {
               const dayEvents = getAllEventsForDate(events, date);
               const isToday = date.toDateString() === new Date().toDateString();
@@ -365,38 +371,38 @@ export function Schedule() {
               return (
                 <div
                   key={index}
-                  className={`border-2 rounded-xl p-4 min-h-[200px] ${
-                    isToday ? 'bg-primary-50 border-primary-300' : 'bg-white border-gray-200'
+                  className={`border-2 rounded-xl p-3 sm:p-4 min-h-[180px] sm:min-h-[200px] ${
+                    isToday ? 'bg-primary-50 border-primary-300 shadow-lg' : 'bg-white border-gray-200'
                   }`}
                 >
                   <div className="text-center mb-3">
-                    <div className={`font-bold ${isToday ? 'text-primary-700' : 'text-gray-700'}`}>
+                    <div className={`font-bold text-base sm:text-lg ${isToday ? 'text-primary-700' : 'text-gray-700'}`}>
                       {actualDayName}
                     </div>
-                    <div className={`text-sm ${isToday ? 'text-primary-600' : 'text-gray-500'}`}>
+                    <div className={`text-xs sm:text-sm ${isToday ? 'text-primary-600' : 'text-gray-500'}`}>
                       {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     {dayEvents.length === 0 ? (
-                      <p className="text-xs text-gray-400 text-center py-4">No classes</p>
+                      <p className="text-xs sm:text-sm text-gray-400 text-center py-4">No classes</p>
                     ) : (
                       dayEvents
                         .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''))
                         .map((event) => (
                           <div
                             key={event.id}
-                            className={`p-3 rounded-lg border-2 ${getEventTypeColor(event.type)} cursor-pointer hover:shadow-md transition-shadow`}
+                            className={`p-2 sm:p-3 rounded-lg border-2 ${getEventTypeColor(event.type)} hover:shadow-md transition-all active:scale-98`}
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-sm truncate" title={event.title}>
+                                <div className="font-semibold text-xs sm:text-sm truncate" title={event.title}>
                                   {getEventTypeIcon(event.type)} {event.title}
                                 </div>
                                 {event.startTime && event.endTime && (
-                                  <div className="text-xs mt-1">
-                                    🕐 {event.startTime} - {event.endTime}
+                                  <div className="text-xs mt-1 font-medium">
+                                    🕐 {event.startTime}-{event.endTime}
                                   </div>
                                 )}
                                 {event.location && (
@@ -404,17 +410,17 @@ export function Schedule() {
                                 )}
                               </div>
                               {currentUser?.isAdmin && (
-                                <div className="flex gap-1">
+                                <div className="flex flex-col sm:flex-row gap-1">
                                   <button
                                     onClick={() => openEditModal(event)}
-                                    className="text-xs px-2 py-1 bg-white/50 hover:bg-white rounded transition-colors"
+                                    className="text-xs px-2 py-1 bg-white/50 hover:bg-white rounded transition-colors active:scale-95"
                                     title="Edit"
                                   >
                                     ✏️
                                   </button>
                                   <button
                                     onClick={() => handleDeleteEvent(event.id)}
-                                    className="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 rounded transition-colors"
+                                    className="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 rounded transition-colors active:scale-95"
                                     title="Delete"
                                   >
                                     🗑️
@@ -422,12 +428,12 @@ export function Schedule() {
                                 </div>
                               )}
                             </div>
-                            {!currentUser?.isAdmin && event.type === 'class' && event.subjectId && (
+                            {!currentUser?.isAdmin && event.type === 'class' && (
                               <button
                                 onClick={() => handleMarkAbsence(event, date)}
-                                className="w-full mt-2 text-xs px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors font-semibold"
+                                className="w-full mt-2 text-xs sm:text-sm px-3 py-2.5 sm:py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-bold shadow-md active:scale-95 touch-manipulation"
                               >
-                                ❌ Mark Absent
+                                ❌ I'm Absent
                               </button>
                             )}
                           </div>
@@ -510,17 +516,17 @@ export function Schedule() {
 
       {/* Attendance Summary (for non-admin users) */}
       {!currentUser?.isAdmin && Object.keys(absenceCounts).length > 0 && (
-        <div className="glass-effect rounded-2xl p-6 shadow-lg border border-gray-200/50">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">📊 Your Attendance Summary</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="glass-effect rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200/50">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">📊 Your Attendance Summary</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {Object.entries(absenceCounts).map(([subjectId, count]) => {
               const subject = allSubjects.find((s: { id: string }) => s.id === subjectId);
               return (
-                <div key={subjectId} className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
-                  <div className="font-semibold text-gray-800">{subject?.name || 'Unknown Subject'}</div>
-                  <div className="text-2xl font-bold text-red-600 mt-2">{count} absences</div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    Penalty: {(count * 0.5).toFixed(1)} points
+                <div key={subjectId} className="p-4 bg-red-50 border-2 border-red-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                  <div className="font-bold text-sm sm:text-base text-gray-800">{subject?.name || 'Unknown Subject'}</div>
+                  <div className="text-3xl sm:text-2xl font-bold text-red-600 mt-2">{count} absence{count > 1 ? 's' : ''}</div>
+                  <div className="text-sm text-gray-600 mt-1 font-medium">
+                    ⚠️ Penalty: {(count * 0.5).toFixed(1)} points
                   </div>
                 </div>
               );
