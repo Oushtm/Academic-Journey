@@ -34,7 +34,7 @@ export function Schedule() {
     endTime: '',
     location: '',
     subjectId: '',
-    isRecurring: false,
+    isRecurring: true, // Default to recurring (all semester)
     dayOfWeek: 'monday' as DayOfWeek,
   });
 
@@ -48,24 +48,21 @@ export function Schedule() {
     loadEvents();
   }, [viewMode]);
 
-  // Auto-add classes if missing (only for admin)
+  // Auto-add classes on first load (only for admin)
   useEffect(() => {
     const autoAddClasses = async () => {
       if (!currentUser?.isAdmin) return;
-      if (events.length > 0 && events.length < 14) {
-        console.log('Detected incomplete schedule. Auto-adding all classes...');
-        localStorage.removeItem('schedule_events');
-        await handleAddAllWeeklyClasses();
-      } else if (events.length === 0) {
-        console.log('No classes found. Auto-adding all 14 classes...');
+      if (events.length === 0) {
+        console.log('No classes found. Auto-adding all 14 weekly classes...');
         await handleAddAllWeeklyClasses();
       }
     };
     
-    if (currentUser?.isAdmin && events.length < 14) {
+    // Only run once when component mounts and user is admin
+    if (currentUser?.isAdmin && events.length === 0) {
       autoAddClasses();
     }
-  }, [events.length, currentUser]);
+  }, [currentUser?.isAdmin]);
 
   const loadEvents = async () => {
     const loadedEvents = await loadScheduleEvents();
@@ -366,30 +363,15 @@ export function Schedule() {
               🔄 Refresh
             </button>
             {currentUser?.isAdmin && (
-              <>
-                {events.length < 14 && (
-                  <button
-                    onClick={async () => {
-                      if (!currentUser) return;
-                      // Clear and re-add all
-                      localStorage.removeItem('schedule_events');
-                      await handleAddAllWeeklyClasses();
-                    }}
-                    className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
-                  >
-                    🔄 Reset & Add All 14 Classes
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    resetForm();
-                    setShowEventModal(true);
-                  }}
-                  className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
-                >
-                  ➕ Add Event
-                </button>
-              </>
+              <button
+                onClick={() => {
+                  resetForm();
+                  setShowEventModal(true);
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
+              >
+                ➕ Add Event
+              </button>
             )}
           </div>
         </div>
@@ -645,17 +627,24 @@ export function Schedule() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isRecurring"
-                  checked={formData.isRecurring}
-                  onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
-                  className="w-4 h-4"
-                />
-                <label htmlFor="isRecurring" className="text-sm font-semibold text-gray-700">
-                  🔄 Recurring Weekly Event
-                </label>
+              <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="isRecurring"
+                    checked={formData.isRecurring}
+                    onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
+                    className="w-5 h-5"
+                  />
+                  <label htmlFor="isRecurring" className="text-base font-bold text-blue-800">
+                    🔄 Repeat Every Week (All Semester)
+                  </label>
+                </div>
+                <p className="text-sm text-blue-700 ml-7">
+                  {formData.isRecurring 
+                    ? '✅ This event will repeat every week automatically' 
+                    : '⚠️ This event will only happen on the specific dates you choose'}
+                </p>
               </div>
 
               {formData.isRecurring && (
