@@ -232,7 +232,6 @@ export function Schedule() {
   };
 
   const weekDates = getWeekDates(currentDate);
-  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   const previousWeek = () => {
     const newDate = new Date(currentDate);
@@ -371,6 +370,14 @@ export function Schedule() {
             {weekDates.map((date, index) => {
               const dayEvents = getAllEventsForDate(events, date);
               const isToday = date.toDateString() === new Date().toDateString();
+              const actualDayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+              
+              // Debug logging
+              if (actualDayName === 'Friday') {
+                console.log('Friday date:', date.toDateString());
+                console.log('All events:', events.filter(e => e.isRecurring).map(e => ({ title: e.title, day: e.dayOfWeek })));
+                console.log('Friday events found:', dayEvents.map(e => e.title));
+              }
 
               return (
                 <div
@@ -381,7 +388,7 @@ export function Schedule() {
                 >
                   <div className="text-center mb-3">
                     <div className={`font-bold ${isToday ? 'text-primary-700' : 'text-gray-700'}`}>
-                      {dayNames[index]}
+                      {actualDayName}
                     </div>
                     <div className={`text-sm ${isToday ? 'text-primary-600' : 'text-gray-500'}`}>
                       {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
