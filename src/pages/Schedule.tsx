@@ -404,12 +404,22 @@ export function Schedule() {
                                 )}
                               </div>
                               {currentUser?.isAdmin && (
-                                <button
-                                  onClick={() => openEditModal(event)}
-                                  className="text-xs px-2 py-1 bg-white/50 hover:bg-white rounded transition-colors"
-                                >
-                                  ✏️
-                                </button>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => openEditModal(event)}
+                                    className="text-xs px-2 py-1 bg-white/50 hover:bg-white rounded transition-colors"
+                                    title="Edit"
+                                  >
+                                    ✏️
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteEvent(event.id)}
+                                    className="text-xs px-2 py-1 bg-red-100 hover:bg-red-200 rounded transition-colors"
+                                    title="Delete"
+                                  >
+                                    🗑️
+                                  </button>
+                                </div>
                               )}
                             </div>
                             {!currentUser?.isAdmin && event.type === 'class' && event.subjectId && (
