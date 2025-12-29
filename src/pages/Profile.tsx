@@ -11,19 +11,32 @@ export function Profile() {
   const { currentUser } = useAuth();
   const { years, updateStructure } = useAcademic();
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
+  const [selectedSemester, setSelectedSemester] = useState<{ [yearNumber: number]: 1 | 2 }>({});
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
-  const [addingModule, setAddingModule] = useState<number | null>(null);
-  const [addingSubject, setAddingSubject] = useState<{ year: number; module: string } | null>(null);
+  const [addingModule, setAddingModule] = useState<{ year: number; semester: 1 | 2 } | null>(null);
+  const [addingSubject, setAddingSubject] = useState<{ year: number; semester: 1 | 2; module: string } | null>(null);
 
   // If not admin, redirect to user profile
   if (!currentUser?.isAdmin) {
     return <UserProfile />;
   }
 
-  const handleAddModule = (yearNumber: number, module: Module) => {
+  // Helper to get current semester for a year
+  const getCurrentSemester = (yearNumber: number): 1 | 2 => {
+    return selectedSemester[yearNumber] || 1;
+  };
+
+  const handleAddModule = (yearNumber: number, semesterNum: 1 | 2, module: Module) => {
     const updatedYears = years.map((y) =>
-      y.yearNumber === yearNumber
-        ? { ...y, modules: [...y.modules, module] }
+      y.yearNumber === yearNumber && y.semesters
+        ? {
+            ...y,
+            semesters: y.semesters.map((s) =>
+              s.semesterNumber === semesterNum
+                ? { ...s, modules: [...s.modules, module] }
+                : s
+            ),
+          }
         : y
     );
 
@@ -31,15 +44,22 @@ export function Profile() {
     setAddingModule(null);
   };
 
-  const handleAddSubject = (yearNumber: number, moduleId: string, subject: SubjectStructure) => {
+  const handleAddSubject = (yearNumber: number, semesterNum: 1 | 2, moduleId: string, subject: SubjectStructure) => {
     const updatedYears = years.map((y) =>
-      y.yearNumber === yearNumber
+      y.yearNumber === yearNumber && y.semesters
         ? {
             ...y,
-            modules: y.modules.map((m) =>
-              m.id === moduleId
-                ? { ...m, subjects: [...m.subjects, subject] }
-                : m
+            semesters: y.semesters.map((s) =>
+              s.semesterNumber === semesterNum
+                ? {
+                    ...s,
+                    modules: s.modules.map((m) =>
+                      m.id === moduleId
+                        ? { ...m, subjects: [...m.subjects, subject] }
+                        : m
+                    ),
+                  }
+                : s
             ),
           }
         : y
@@ -49,29 +69,65 @@ export function Profile() {
     setAddingSubject(null);
   };
 
-  const handleDeleteModule = (yearNumber: number, moduleId: string) => {
+  const handleDeleteModule = (yearNumber: number, semesterNum: 1 | 2, moduleId: string) => {
     if (!confirm('Are you sure you want to delete this module? All subjects will be deleted.')) return;
 
     const updatedYears = years.map((y) =>
-      y.yearNumber === yearNumber
-        ? { ...y, modules: y.modules.filter((m) => m.id !== moduleId) }
+      y.yearNumber === yearNumber && y.semesters
+        ? {
+            ...y,
+            semesters: y.semesters.map((s) =>
+              s.semesterNumber === semesterNum
+                ? { ...s, modules: s.modules.filter((m) => m.id !== moduleId) }
+                : s
+            ),
+          }
         : y
     );
 
     updateStructure(updatedYears);
   };
 
-  const handleDeleteSubject = (yearNumber: number, moduleId: string, subjectId: string) => {
+  const handleDeleteSubject = (yearNumber: number, semesterNum: 1 | 2, moduleId: string, subjectId: string) => {
     if (!confirm('Are you sure you want to delete this subject? All data will be lost.')) return;
 
     const updatedYears = years.map((y) =>
-      y.yearNumber === yearNumber
+      y.yearNumber === yearNumber && y.semesters
         ? {
             ...y,
-            modules: y.modules.map((m) =>
-              m.id === moduleId
-                ? { ...m, subjects: m.subjects.filter((s) => s.id !== subjectId) }
-                : m
+            semesters: y.semesters.map((s) =>
+              s.semesterNumber === semesterNum
+                ? {
+                    ...s,
+                    modules: s.modules.map((m) =>
+                      m.id === moduleId
+                        ? { ...m, subjects: m.subjects.filter((s) => s.id !== subjectId) }
+                        : m
+                    ),
+                  }
+                : s
+            ),
+          }
+        : y
+    );
+
+    updateStructure(updatedYears);
+  };
+
+  const handleRenameModule = (yearNumber: number, semesterNum: 1 | 2, moduleId: string, newName: string) => {
+    const updatedYears = years.map((y) =>
+      y.yearNumber === yearNumber && y.semesters
+        ? {
+            ...y,
+            semesters: y.semesters.map((s) =>
+              s.semesterNumber === semesterNum
+                ? {
+                    ...s,
+                    modules: s.modules.map((m) =>
+                      m.id === moduleId ? { ...m, name: newName } : m
+                    ),
+                  }
+                : s
             ),
           }
         : y
@@ -126,8 +182,17 @@ export function Profile() {
                   <div>
                     <div className="text-3xl font-extrabold mb-1">Year {year.yearNumber}</div>
                     <div className="text-primary-100 font-medium">
-                      {year.modules.length} modules •{' '}
-                      {year.modules.reduce((sum: number, m) => sum + m.subjects.length, 0)} subjects
+                      {year.semesters ? (
+                        <>
+                          {year.semesters.reduce((sum, s) => sum + s.modules.length, 0)} modules •{' '}
+                          {year.semesters.reduce((sum, s) => sum + s.modules.reduce((mSum: number, m) => mSum + m.subjects.length, 0), 0)} subjects
+                        </>
+                      ) : (
+                        <>
+                          {year.modules?.length || 0} modules •{' '}
+                          {year.modules?.reduce((sum: number, m) => sum + m.subjects.length, 0) || 0} subjects
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -139,26 +204,47 @@ export function Profile() {
             </div>
 
             {/* Year Content */}
-            {expandedYear === year.yearNumber && (
-              <div className="p-8 space-y-6 bg-white/50">
-                {addingModule === year.yearNumber ? (
-                  <AddModuleInline
-                    onAdd={(module) => handleAddModule(year.yearNumber, module)}
-                    onCancel={() => setAddingModule(null)}
-                  />
-                ) : year.modules.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p className="mb-4">No modules added yet</p>
+            {expandedYear === year.yearNumber && year.semesters && (
+              <div className="bg-white/50">
+                {/* Semester Tabs */}
+                <div className="flex border-b-2 border-gray-200">
+                  {year.semesters.map((semester) => (
                     <button
-                      onClick={() => setAddingModule(year.yearNumber)}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      key={semester.id}
+                      onClick={() => setSelectedSemester({ ...selectedSemester, [year.yearNumber]: semester.semesterNumber })}
+                      className={`flex-1 px-6 py-4 font-bold text-lg transition-all duration-300 ${
+                        getCurrentSemester(year.yearNumber) === semester.semesterNumber
+                          ? 'bg-white text-primary-700 border-b-4 border-primary-600'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
                     >
-                      + Add Module
+                      📚 Semester {semester.semesterNumber} (S{semester.semesterNumber})
                     </button>
-                  </div>
-                ) : (
-                  <>
-                    {year.modules.map((module, moduleIndex) => (
+                  ))}
+                </div>
+
+                {/* Semester Content */}
+                {year.semesters.map((semester) => (
+                  getCurrentSemester(year.yearNumber) === semester.semesterNumber && (
+                    <div key={semester.id} className="p-8 space-y-6">
+                      {addingModule?.year === year.yearNumber && addingModule?.semester === semester.semesterNumber ? (
+                        <AddModuleInline
+                          onAdd={(module) => handleAddModule(year.yearNumber, semester.semesterNumber, module)}
+                          onCancel={() => setAddingModule(null)}
+                        />
+                      ) : semester.modules.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <p className="mb-4">No modules in S{semester.semesterNumber} yet</p>
+                          <button
+                            onClick={() => setAddingModule({ year: year.yearNumber, semester: semester.semesterNumber })}
+                            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                          >
+                            + Add Module to S{semester.semesterNumber}
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          {semester.modules.map((module, moduleIndex) => (
                       <div key={module.id} className="border-2 border-gray-200 rounded-xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-300 animate-scale-in" style={{ animationDelay: `${moduleIndex * 0.05}s` }}>
                         {/* Module Header */}
                         <div
@@ -185,17 +271,7 @@ export function Profile() {
                                   e.stopPropagation();
                                   const newName = prompt('Enter new module name:', module.name);
                                   if (newName?.trim()) {
-                                    const updatedYears = years.map((y) =>
-                                      y.id === year.id
-                                        ? {
-                                            ...y,
-                                            modules: y.modules.map((m) =>
-                                              m.id === module.id ? { ...m, name: newName.trim() } : m
-                                            ),
-                                          }
-                                        : y
-                                    );
-                                    updateStructure(updatedYears);
+                                    handleRenameModule(year.yearNumber, semester.semesterNumber, module.id, newName.trim());
                                   }
                                 }}
                                 className="px-4 py-2 text-sm font-semibold bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 hover:shadow-md transition-all duration-300"
@@ -205,7 +281,7 @@ export function Profile() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteModule(year.yearNumber, module.id);
+                                  handleDeleteModule(year.yearNumber, semester.semesterNumber, module.id);
                                 }}
                                 className="px-4 py-2 text-sm font-semibold bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-300"
                               >
@@ -221,16 +297,16 @@ export function Profile() {
                         {/* Module Content */}
                         {expandedModule === module.id && (
                           <div className="p-6 bg-white space-y-4">
-                            {addingSubject?.year === year.yearNumber && addingSubject?.module === module.id ? (
+                            {addingSubject?.year === year.yearNumber && addingSubject?.semester === semester.semesterNumber && addingSubject?.module === module.id ? (
                               <AddSubjectInline
-                                onAdd={(subject) => handleAddSubject(year.yearNumber, module.id, subject)}
+                                onAdd={(subject) => handleAddSubject(year.yearNumber, semester.semesterNumber, module.id, subject)}
                                 onCancel={() => setAddingSubject(null)}
                               />
                             ) : module.subjects.length === 0 ? (
                               <div className="text-center py-4 text-gray-500">
                                 <p className="mb-3">No subjects added yet</p>
                                 <button
-                                  onClick={() => setAddingSubject({ year: year.yearNumber, module: module.id })}
+                                  onClick={() => setAddingSubject({ year: year.yearNumber, semester: semester.semesterNumber, module: module.id })}
                                   className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
                                 >
                                   + Add Subject
@@ -263,7 +339,7 @@ export function Profile() {
                                       </div>
                                       <div className="flex items-center space-x-2 ml-6">
                                         <button
-                                          onClick={() => handleDeleteSubject(year.yearNumber, module.id, subject.id)}
+                                          onClick={() => handleDeleteSubject(year.yearNumber, semester.semesterNumber, module.id, subject.id)}
                                           className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 hover:shadow-md transition-all duration-300 text-sm font-semibold"
                                         >
                                           🗑️ Delete
@@ -273,7 +349,7 @@ export function Profile() {
                                   </div>
                                 ))}
                                 <button
-                                  onClick={() => setAddingSubject({ year: year.yearNumber, module: module.id })}
+                                  onClick={() => setAddingSubject({ year: year.yearNumber, semester: semester.semesterNumber, module: module.id })}
                                   className="w-full px-6 py-4 border-2 border-dashed border-primary-300 bg-primary-50 text-primary-700 rounded-xl hover:border-primary-500 hover:bg-primary-100 hover:shadow-md transition-all duration-300 font-semibold"
                                 >
                                   ➕ Add Subject
@@ -285,13 +361,16 @@ export function Profile() {
                       </div>
                     ))}
                     <button
-                      onClick={() => setAddingModule(year.yearNumber)}
+                      onClick={() => setAddingModule({ year: year.yearNumber, semester: semester.semesterNumber })}
                       className="w-full px-6 py-4 border-2 border-dashed border-primary-300 bg-primary-50 text-primary-700 rounded-xl hover:border-primary-500 hover:bg-primary-100 hover:shadow-md transition-all duration-300 font-bold text-lg"
                     >
-                      ➕ Add Module to Year {year.yearNumber}
+                      ➕ Add Module to S{semester.semesterNumber}
                     </button>
                   </>
                 )}
+                    </div>
+                  )
+                ))}
               </div>
             )}
           </div>

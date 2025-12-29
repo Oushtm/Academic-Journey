@@ -7,7 +7,18 @@ const defaultStructure = {
   years: Array.from({ length: 5 }, (_, i) => ({
     id: `year-${i + 1}`,
     yearNumber: i + 1,
-    modules: [],
+    semesters: [
+      {
+        id: `year-${i + 1}-s1`,
+        semesterNumber: 1 as 1 | 2,
+        modules: [],
+      },
+      {
+        id: `year-${i + 1}-s2`,
+        semesterNumber: 2 as 1 | 2,
+        modules: [],
+      },
+    ],
   })),
 };
 
@@ -130,19 +141,39 @@ export async function saveSharedStructure(data: { years: AcademicYear[] }): Prom
  */
 function removePdfsFromStructure(data: { years: AcademicYear[] }): { years: AcademicYear[] } {
   return {
-    years: data.years.map(year => ({
-      ...year,
-      modules: year.modules.map(module => ({
-        ...module,
-        subjects: module.subjects.map(subject => ({
-          ...subject,
-          lessons: subject.lessons?.map(lesson => {
-            const { pdfFile, ...lessonWithoutPdf } = lesson;
-            return lessonWithoutPdf;
-          }) || [],
-        })),
-      })),
-    })),
+    years: data.years.map(year => {
+      if (year.semesters) {
+        return {
+          ...year,
+          semesters: year.semesters.map(semester => ({
+            ...semester,
+            modules: semester.modules.map(module => ({
+              ...module,
+              subjects: module.subjects.map(subject => ({
+                ...subject,
+                lessons: subject.lessons?.map(lesson => {
+                  const { pdfFile, ...lessonWithoutPdf } = lesson;
+                  return lessonWithoutPdf;
+                }) || [],
+              })),
+            })),
+          })),
+        };
+      }
+      return {
+        ...year,
+        modules: year.modules?.map(module => ({
+          ...module,
+          subjects: module.subjects.map(subject => ({
+            ...subject,
+            lessons: subject.lessons?.map(lesson => {
+              const { pdfFile, ...lessonWithoutPdf } = lesson;
+              return lessonWithoutPdf;
+            }) || [],
+          })),
+        })) || [],
+      };
+    }),
   };
 }
 

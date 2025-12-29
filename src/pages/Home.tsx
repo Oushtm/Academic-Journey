@@ -6,9 +6,9 @@ export function Home() {
   const { years, getSubjectsForYear } = useAcademic();
 
   // Calculate overall statistics
-  const totalModules = years.reduce((sum, y) => sum + y.modules.length, 0);
+  const totalModules = years.reduce((sum, y) => sum + (y.semesters ? y.semesters.reduce((s, sem) => s + sem.modules.length, 0) : (y.modules?.length || 0)), 0);
   const totalSubjects = years.reduce((sum, y) => 
-    sum + y.modules.reduce((s, m) => s + m.subjects.length, 0), 0
+    sum + (y.semesters ? y.semesters.reduce((s, sem) => s + sem.modules.reduce((ms, m) => ms + m.subjects.length, 0), 0) : (y.modules?.reduce((s, m) => s + m.subjects.length, 0) || 0)), 0
   );
   
   // Get all subjects with user data
@@ -164,7 +164,15 @@ export function Home() {
                     Year {year.yearNumber}
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 font-medium">
-                    {year.modules.length} modules • {year.modules.reduce((sum, m) => sum + m.subjects.length, 0)} subjects
+                    {year.semesters ? (
+                      <>
+                        {year.semesters.reduce((sum, s) => sum + s.modules.length, 0)} modules • {year.semesters.reduce((sum, s) => sum + s.modules.reduce((mSum: number, m) => mSum + m.subjects.length, 0), 0)} subjects
+                      </>
+                    ) : (
+                      <>
+                        {year.modules?.length || 0} modules • {year.modules?.reduce((sum, m) => sum + m.subjects.length, 0) || 0} subjects
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="text-xl sm:text-2xl text-gray-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all duration-300">→</div>
@@ -306,7 +314,7 @@ export function Home() {
                        )}
                      </div>
                      <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-gray-600 font-medium">
-                       <span>{year.modules.length} modules</span>
+                       <span>{year.semesters ? year.semesters.reduce((sum, s) => sum + s.modules.length, 0) : (year.modules?.length || 0)} modules</span>
                        <span>{yearSubjects.length} subjects</span>
                        <span>
                          {yearSubjects.reduce((sum: number, s) => sum + s.missedSessions, 0)} absences

@@ -44,7 +44,10 @@ export function SubjectView() {
   let year = null;
   if (subjectId) {
     for (const y of years) {
-      for (const m of y.modules) {
+      const modules = y.semesters 
+        ? y.semesters.flatMap(s => s.modules)
+        : (y.modules || []);
+      for (const m of modules) {
         if (m.subjects.some((s) => s.id === subjectId)) {
           module = m;
           year = y;

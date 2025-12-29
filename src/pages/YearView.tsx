@@ -67,7 +67,7 @@ export function YearView() {
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold">Year {year.yearNumber}</h2>
           <p className="text-base md:text-xl text-primary-100">
-            {year.modules.length} Module{year.modules.length !== 1 ? 's' : ''} • {subjectData.length} Subject{subjectData.length !== 1 ? 's' : ''}
+            {year.semesters ? year.semesters.reduce((sum, s) => sum + s.modules.length, 0) : (year.modules?.length || 0)} Module{((year.semesters ? year.semesters.reduce((sum, s) => sum + s.modules.length, 0) : (year.modules?.length || 0)) !== 1) ? 's' : ''} • {subjectData.length} Subject{subjectData.length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
@@ -125,7 +125,7 @@ export function YearView() {
 
       {/* Modules List */}
       <div className="space-y-6">
-        {year.modules.map((module) => (
+        {(year.semesters ? year.semesters.flatMap(s => s.modules) : (year.modules || [])).map((module) => (
           <div key={module.id} className="glass-effect rounded-2xl shadow-medium border border-white/50 p-4 md:p-6 lg:p-8">
                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 md:gap-4 mb-4 md:mb-6">
                    <h3 className="text-xl md:text-2xl font-extrabold text-gray-900">{module.name}</h3>

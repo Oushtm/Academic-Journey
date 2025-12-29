@@ -20,7 +20,18 @@ export function loadAcademicData(): AcademicData {
     years: Array.from({ length: 5 }, (_, i) => ({
       id: `year-${i + 1}`,
       yearNumber: i + 1,
-      modules: [],
+      semesters: [
+        {
+          id: `year-${i + 1}-s1`,
+          semesterNumber: 1 as 1 | 2,
+          modules: [],
+        },
+        {
+          id: `year-${i + 1}-s2`,
+          semesterNumber: 2 as 1 | 2,
+          modules: [],
+        },
+      ],
     })),
   };
 }
@@ -51,7 +62,11 @@ export function findSubjectById(
   subjectId: string
 ): { year: AcademicYear; module: Module; subject: Subject } | null {
   for (const year of data.years) {
-    for (const module of year.modules) {
+    const modules = year.semesters 
+      ? year.semesters.flatMap(s => s.modules)
+      : (year.modules || []);
+    
+    for (const module of modules) {
       const subjectStruct = module.subjects.find((s) => s.id === subjectId);
       if (subjectStruct) {
         // Convert SubjectStructure to Subject by adding default user data
@@ -82,7 +97,11 @@ export function updateSubject(
   
   for (let yearIndex = 0; yearIndex < newData.years.length; yearIndex++) {
     const year = newData.years[yearIndex];
-    const newYear = { ...year, modules: [...year.modules] };
+    const modules = year.semesters 
+      ? year.semesters.flatMap((s) => s.modules)
+      : (year.modules || []);
+    
+    const newYear = { ...year, modules: modules };
     
     for (let moduleIndex = 0; moduleIndex < newYear.modules.length; moduleIndex++) {
       const module = newYear.modules[moduleIndex];

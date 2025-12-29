@@ -24,7 +24,7 @@ export function AddModuleForm({ year, onClose }: AddModuleFormProps) {
 
     const updatedYears = years.map((y) =>
       y.id === year.id
-        ? { ...y, modules: [...y.modules, newModule] }
+        ? { ...y, modules: [...(y.modules || []), newModule] }
         : y
     );
 

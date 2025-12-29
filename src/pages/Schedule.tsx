@@ -186,7 +186,11 @@ export function Schedule() {
 
   // Get all subjects for dropdown
   const allSubjects = years.flatMap((year: AcademicYear) =>
-    year.modules.flatMap((module: Module) => module.subjects)
+    year.semesters
+      ? year.semesters.flatMap((semester) =>
+          semester.modules.flatMap((module: Module) => module.subjects)
+        )
+      : (year.modules || []).flatMap((module: Module) => module.subjects)
   );
 
   // Weekly view helpers

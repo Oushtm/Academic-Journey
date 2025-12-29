@@ -26,7 +26,7 @@ export function AddSubjectForm({ module, onClose }: AddSubjectFormProps) {
 
     const updatedYears = years.map((y) => ({
       ...y,
-      modules: y.modules.map((m) =>
+      modules: (y.modules || []).map((m) =>
         m.id === module.id
           ? { ...m, subjects: [...m.subjects, newSubject] }
           : m

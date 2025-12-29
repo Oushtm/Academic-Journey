@@ -9,7 +9,18 @@ const defaultStructure = {
   years: Array.from({ length: 5 }, (_, i) => ({
     id: `year-${i + 1}`,
     yearNumber: i + 1,
-    modules: [],
+    semesters: [
+      {
+        id: `year-${i + 1}-s1`,
+        semesterNumber: 1 as 1 | 2,
+        modules: [],
+      },
+      {
+        id: `year-${i + 1}-s2`,
+        semesterNumber: 2 as 1 | 2,
+        modules: [],
+      },
+    ],
   })),
 };
 
@@ -33,10 +44,61 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
   const [userDataCache, setUserDataCache] = useState<Record<string, UserData>>({});
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+  // Migrate old structure to new semester-based structure
+  const migrateToSemesters = (years: AcademicYear[]): AcademicYear[] => {
+    return years.map(year => {
+      // If year already has semesters, return as is
+      if (year.semesters && year.semesters.length > 0) {
+        return year;
+      }
+      
+      // If year has old modules structure, migrate to S1
+      if (year.modules && year.modules.length > 0) {
+        return {
+          ...year,
+          semesters: [
+            {
+              id: `year-${year.yearNumber}-s1`,
+              semesterNumber: 1 as 1 | 2,
+              modules: year.modules, // Move existing modules to S1
+            },
+            {
+              id: `year-${year.yearNumber}-s2`,
+              semesterNumber: 2 as 1 | 2,
+              modules: [],
+            },
+          ],
+        };
+      }
+      
+      // If year has no modules, create empty semesters
+      return {
+        ...year,
+        semesters: [
+          {
+            id: `year-${year.yearNumber}-s1`,
+            semesterNumber: 1 as 1 | 2,
+            modules: [],
+          },
+          {
+            id: `year-${year.yearNumber}-s2`,
+            semesterNumber: 2 as 1 | 2,
+            modules: [],
+          },
+        ],
+      };
+    });
+  };
+
   // Load structure on mount
   useEffect(() => {
     loadSharedStructure().then((loadedStructure) => {
-      setStructure(loadedStructure);
+      const migratedStructure = {
+        years: migrateToSemesters(loadedStructure.years),
+      };
+      setStructure(migratedStructure);
+      // Save migrated structure
+      saveSharedStructure(migratedStructure);
     });
   }, []);
 
@@ -160,15 +222,33 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
       throw new Error('Structure not loaded');
     }
 
-    const newYears = currentStructure.years.map((year) => ({
-      ...year,
-      modules: year.modules.map((module) => ({
-        ...module,
-        subjects: module.subjects.map((subject) =>
-          subject.id === subjectId ? { ...subject, lessons } : subject
-        ),
-      })),
-    }));
+    const newYears = currentStructure.years.map((year) => {
+      // Handle new semester structure
+      if (year.semesters) {
+        return {
+          ...year,
+          semesters: year.semesters.map((semester) => ({
+            ...semester,
+            modules: semester.modules.map((module) => ({
+              ...module,
+              subjects: module.subjects.map((subject) =>
+                subject.id === subjectId ? { ...subject, lessons } : subject
+              ),
+            })),
+          })),
+        };
+      }
+      // Handle old module structure
+      return {
+        ...year,
+        modules: year.modules?.map((module) => ({
+          ...module,
+          subjects: module.subjects.map((subject) =>
+            subject.id === subjectId ? { ...subject, lessons } : subject
+          ),
+        })) || [],
+      };
+    });
 
     const newStructure = { years: newYears };
     
@@ -192,27 +272,50 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
   const getSubject = (subjectId: string): Subject | null => {
     void refreshTrigger; // Use to trigger re-render when data changes
     
-    // Find subject in shared structure
+    // Find subject in shared structure (support both old and new structure)
     for (const year of structure.years) {
-      for (const module of year.modules) {
-        const subjectStruct = module.subjects.find((s) => s.id === subjectId);
-        if (subjectStruct) {
-          // Merge with user data from cache
-          const userData = getUserSubjectData(subjectId);
-          
-          // Merge lessons with user-specific review status
-          const lessonsWithUserStatus = (subjectStruct.lessons || []).map(lesson => ({
-            ...lesson,
-            reviewStatus: userData?.lessonReviewStatus?.[lesson.id] as ReviewStatus | undefined,
-          }));
+      // Check semesters (new structure)
+      if (year.semesters) {
+        for (const semester of year.semesters) {
+          for (const module of semester.modules) {
+            const subjectStruct = module.subjects.find((s) => s.id === subjectId);
+            if (subjectStruct) {
+              const userData = getUserSubjectData(subjectId);
+              const lessonsWithUserStatus = (subjectStruct.lessons || []).map(lesson => ({
+                ...lesson,
+                reviewStatus: userData?.lessonReviewStatus?.[lesson.id] as ReviewStatus | undefined,
+              }));
 
-          return {
-            ...subjectStruct,
-            assignmentScore: userData?.assignmentScore,
-            examScore: userData?.examScore,
-            missedSessions: userData?.missedSessions ?? 0,
-            lessons: lessonsWithUserStatus,
-          };
+              return {
+                ...subjectStruct,
+                assignmentScore: userData?.assignmentScore,
+                examScore: userData?.examScore,
+                missedSessions: userData?.missedSessions ?? 0,
+                lessons: lessonsWithUserStatus,
+              };
+            }
+          }
+        }
+      }
+      // Check old modules structure (backward compatibility)
+      if (year.modules) {
+        for (const module of year.modules) {
+          const subjectStruct = module.subjects.find((s) => s.id === subjectId);
+          if (subjectStruct) {
+            const userData = getUserSubjectData(subjectId);
+            const lessonsWithUserStatus = (subjectStruct.lessons || []).map(lesson => ({
+              ...lesson,
+              reviewStatus: userData?.lessonReviewStatus?.[lesson.id] as ReviewStatus | undefined,
+            }));
+
+            return {
+              ...subjectStruct,
+              assignmentScore: userData?.assignmentScore,
+              examScore: userData?.examScore,
+              missedSessions: userData?.missedSessions ?? 0,
+              lessons: lessonsWithUserStatus,
+            };
+          }
         }
       }
     }
@@ -220,31 +323,38 @@ export function AcademicProvider({ children }: { children: ReactNode }) {
   };
 
   const getSubjectsForYear = (yearNumber: number): Array<{ subject: Subject; module: Module }> => {
+    void refreshTrigger; // Use to trigger re-render when data changes
+    
     const year = structure.years.find((y) => y.yearNumber === yearNumber);
     if (!year) return [];
-    
-    const result: Array<{ subject: Subject; module: Module }> = [];
-    for (const module of year.modules) {
-      for (const subjectStruct of module.subjects) {
-        const userData = getUserSubjectData(subjectStruct.id);
-        // Merge lessons with user-specific review status
-        const lessonsWithUserStatus = (subjectStruct.lessons || []).map(lesson => ({
-          ...lesson,
-          reviewStatus: userData?.lessonReviewStatus?.[lesson.id] as ReviewStatus | undefined,
-        }));
 
-        result.push({
-          subject: {
-            ...subjectStruct,
-            assignmentScore: userData?.assignmentScore,
-            examScore: userData?.examScore,
-            missedSessions: userData?.missedSessions ?? 0,
-            lessons: lessonsWithUserStatus,
-          },
-          module,
-        });
+    const result: Array<{ subject: Subject; module: Module }> = [];
+    
+    // Check semesters (new structure)
+    if (year.semesters) {
+      for (const semester of year.semesters) {
+        for (const module of semester.modules) {
+          for (const subjectStruct of module.subjects) {
+            const subject = getSubject(subjectStruct.id);
+            if (subject) {
+              result.push({ subject, module });
+            }
+          }
+        }
       }
     }
+    // Check old modules structure (backward compatibility)
+    else if (year.modules) {
+      for (const module of year.modules) {
+        for (const subjectStruct of module.subjects) {
+          const subject = getSubject(subjectStruct.id);
+          if (subject) {
+            result.push({ subject, module });
+          }
+        }
+      }
+    }
+
     return result;
   };
 

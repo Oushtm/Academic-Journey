@@ -81,7 +81,7 @@ export function Dashboard() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600 font-semibold">📚 Modules</span>
-                  <span className="font-bold text-gray-900 text-lg">{year.modules.length}</span>
+                  <span className="font-bold text-gray-900 text-lg">{year.semesters ? year.semesters.reduce((sum, s) => sum + s.modules.length, 0) : (year.modules?.length || 0)}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600 font-semibold">📖 Subjects</span>
@@ -117,7 +117,7 @@ export function Dashboard() {
             <div className="relative z-10">
               <div className="text-sm text-blue-700 font-bold uppercase tracking-wide mb-2">Total Modules</div>
               <div className="text-4xl font-extrabold text-blue-900">
-                {years.reduce((sum, y) => sum + y.modules.length, 0)}
+                {years.reduce((sum, y) => sum + (y.semesters ? y.semesters.reduce((s, sem) => s + sem.modules.length, 0) : (y.modules?.length || 0)), 0)}
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ export function Dashboard() {
             <div className="relative z-10">
               <div className="text-sm text-green-700 font-bold uppercase tracking-wide mb-2">Total Subjects</div>
               <div className="text-4xl font-extrabold text-green-900">
-                {years.reduce((sum, y) => sum + y.modules.reduce((s, m) => s + m.subjects.length, 0), 0)}
+                {years.reduce((sum, y) => sum + (y.semesters ? y.semesters.reduce((s, sem) => s + sem.modules.reduce((ms, m) => ms + m.subjects.length, 0), 0) : (y.modules?.reduce((s, m) => s + m.subjects.length, 0) || 0)), 0)}
               </div>
             </div>
           </div>
