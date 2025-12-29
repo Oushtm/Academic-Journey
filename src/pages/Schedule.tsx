@@ -8,19 +8,16 @@ import {
   updateScheduleEvent,
   deleteScheduleEvent,
   getAllEventsForDate,
-  markAbsence,
-  getAbsencesForUser,
 } from '../services/scheduleStorage';
 
 export function Schedule() {
   const { currentUser } = useAuth();
-  const { years, updateUserSubjectData, getUserSubjectData } = useAcademic();
+  const { years } = useAcademic();
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showEventModal, setShowEventModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
   const [viewMode, setViewMode] = useState<'week' | 'month' | 'list'>('week');
-  const [absenceCounts, setAbsenceCounts] = useState<Record<string, number>>({});
 
   // Form state
   const [formData, setFormData] = useState({
@@ -39,7 +36,6 @@ export function Schedule() {
 
   useEffect(() => {
     loadEvents();
-    loadAbsenceCounts();
   }, [currentUser]);
 
   // Force reload when view changes
@@ -53,39 +49,7 @@ export function Schedule() {
     setEvents(loadedEvents);
   };
 
-  const loadAbsenceCounts = async () => {
-    if (!currentUser) return;
-    const absences = await getAbsencesForUser(currentUser.id);
-    const counts: Record<string, number> = {};
-    absences.forEach((absence) => {
-      counts[absence.subjectId] = (counts[absence.subjectId] || 0) + 1;
-    });
-    setAbsenceCounts(counts);
-  };
 
-  const handleMarkAbsence = async (event: ScheduleEvent, date: Date) => {
-    if (!currentUser) return;
-    
-    const dateStr = date.toISOString().split('T')[0];
-    
-    // If event has a subject, update the subject's missed sessions
-    if (event.subjectId) {
-      await markAbsence(currentUser.id, event.id, event.subjectId, dateStr);
-      
-      const currentData = getUserSubjectData(event.subjectId);
-      const currentMissed = currentData?.missedSessions || 0;
-      await updateUserSubjectData(event.subjectId, {
-        missedSessions: currentMissed + 1,
-      });
-      
-      await loadAbsenceCounts();
-      alert(`✅ Marked as absent for ${event.title}.\n\n📊 Total absences: ${currentMissed + 1}\n⚠️ Penalty: ${((currentMissed + 1) * 0.5).toFixed(1)} points`);
-    } else {
-      // If no subject linked, just record the absence
-      await markAbsence(currentUser.id, event.id, 'no-subject', dateStr);
-      alert(`✅ Marked as absent for ${event.title}.\n\n⚠️ Note: This class is not linked to a subject, so it won't affect your grade.`);
-    }
-  };
 
   const handleAddEvent = async () => {
     if (!currentUser || !formData.title) {
@@ -506,26 +470,6 @@ export function Schedule() {
         </div>
       )}
 
-      {/* Attendance Summary (for non-admin users) */}
-      {!currentUser?.isAdmin && Object.keys(absenceCounts).length > 0 && (
-        <div className="glass-effect rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200/50">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">📊 Your Attendance Summary</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {Object.entries(absenceCounts).map(([subjectId, count]) => {
-              const subject = allSubjects.find((s: { id: string }) => s.id === subjectId);
-              return (
-                <div key={subjectId} className="p-4 bg-red-50 border-2 border-red-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                  <div className="font-bold text-sm sm:text-base text-gray-800">{subject?.name || 'Unknown Subject'}</div>
-                  <div className="text-3xl sm:text-2xl font-bold text-red-600 mt-2">{count} absence{count > 1 ? 's' : ''}</div>
-                  <div className="text-sm text-gray-600 mt-1 font-medium">
-                    ⚠️ Penalty: {(count * 0.5).toFixed(1)} points
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Event Modal */}
       {showEventModal && currentUser?.isAdmin && (
