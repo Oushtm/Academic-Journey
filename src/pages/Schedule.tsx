@@ -11,6 +11,7 @@ import {
   markAbsence,
   getAbsencesForUser,
 } from '../services/scheduleStorage';
+import { weeklyScheduleData } from '../utils/addWeeklySchedule';
 
 export function Schedule() {
   const { currentUser } = useAuth();
@@ -243,6 +244,35 @@ export function Schedule() {
     setCurrentDate(new Date());
   };
 
+  const handleAddAllWeeklyClasses = async () => {
+    if (!currentUser) return;
+    
+    if (!confirm('This will add all 14 weekly classes to your schedule. Continue?')) {
+      return;
+    }
+
+    try {
+      for (const classData of weeklyScheduleData) {
+        const newEvent: ScheduleEvent = {
+          ...classData,
+          id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          createdBy: currentUser.id,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        await addScheduleEvent(newEvent);
+        // Small delay to ensure unique IDs
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      await loadEvents();
+      alert('✅ All 14 weekly classes have been added successfully!');
+    } catch (error) {
+      console.error('Error adding weekly classes:', error);
+      alert('❌ Error adding classes. Please try again.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -276,15 +306,25 @@ export function Schedule() {
               📋 List
             </button>
             {currentUser?.isAdmin && (
-              <button
-                onClick={() => {
-                  resetForm();
-                  setShowEventModal(true);
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
-              >
-                ➕ Add Event
-              </button>
+              <>
+                {events.length === 0 && (
+                  <button
+                    onClick={handleAddAllWeeklyClasses}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
+                  >
+                    ⚡ Add All 14 Classes
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    resetForm();
+                    setShowEventModal(true);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
+                >
+                  ➕ Add Event
+                </button>
+              </>
             )}
           </div>
         </div>
