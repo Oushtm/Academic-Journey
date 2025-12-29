@@ -43,6 +43,11 @@ export function Schedule() {
     loadAbsenceCounts();
   }, [currentUser]);
 
+  // Force reload when view changes
+  useEffect(() => {
+    loadEvents();
+  }, [viewMode]);
+
   const loadEvents = async () => {
     const loadedEvents = await loadScheduleEvents();
     setEvents(loadedEvents);
@@ -310,6 +315,12 @@ export function Schedule() {
             >
               📋 List
             </button>
+            <button
+              onClick={loadEvents}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all font-semibold text-sm"
+            >
+              🔄 Refresh
+            </button>
             {currentUser?.isAdmin && (
               <>
                 {events.length === 0 && (
@@ -372,12 +383,12 @@ export function Schedule() {
               const isToday = date.toDateString() === new Date().toDateString();
               const actualDayName = date.toLocaleDateString('en-US', { weekday: 'long' });
               
-              // Debug logging
-              if (actualDayName === 'Friday') {
-                console.log('Friday date:', date.toDateString());
-                console.log('All events:', events.filter(e => e.isRecurring).map(e => ({ title: e.title, day: e.dayOfWeek })));
-                console.log('Friday events found:', dayEvents.map(e => e.title));
-              }
+              // Debug logging for all days
+              console.log(`${actualDayName} (${date.toDateString()}):`, {
+                jsDay: date.getDay(),
+                eventsFound: dayEvents.length,
+                eventTitles: dayEvents.map(e => e.title)
+              });
 
               return (
                 <div
