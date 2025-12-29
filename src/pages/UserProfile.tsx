@@ -51,14 +51,14 @@ export function UserProfile() {
       {/* Header */}
       <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12 text-white">
         <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-primary-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="relative z-10 space-y-3 sm:space-y-4">
-          <Link to="/" className="text-white/80 hover:text-white text-sm inline-block font-medium hover:underline mb-2">
+        <div className="relative z-10">
+          <Link to="/" className="text-white/80 hover:text-white text-sm inline-block font-medium hover:underline mb-4 block">
             ← Back to Home
           </Link>
-          <div className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs sm:text-sm font-semibold border border-white/30">
+          <div className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs sm:text-sm font-semibold border border-white/30 mb-4">
             👤 Your Profile
           </div>
-          <div className="space-y-2 sm:space-y-3 pt-2">
+          <div className="space-y-2 sm:space-y-3 mt-4">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">My Profile</h2>
             <p className="text-base sm:text-lg md:text-xl text-primary-100 leading-relaxed">Your personal academic statistics and overview</p>
           </div>
