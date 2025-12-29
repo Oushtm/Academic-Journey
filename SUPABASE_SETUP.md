@@ -87,3 +87,5 @@ npm install @supabase/supabase-js
 
 Now your data will persist across all devices!
 
+
+

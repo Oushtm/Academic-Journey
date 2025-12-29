@@ -9,6 +9,7 @@ import { Profile } from './pages/Profile';
 import { UserManagement } from './pages/UserManagement';
 import { YearView } from './pages/YearView';
 import { SubjectView } from './pages/SubjectView';
+import { Schedule } from './pages/Schedule';
 
 function PrivateRoute({ children }: { children: React.ReactElement }) {
   const { isAuthenticated } = useAuth();
@@ -66,6 +67,14 @@ function AppRoutes() {
             element={
               <PrivateRoute>
                 <SubjectView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/schedule"
+            element={
+              <PrivateRoute>
+                <Schedule />
               </PrivateRoute>
             }
           />

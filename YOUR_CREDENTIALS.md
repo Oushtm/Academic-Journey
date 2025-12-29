@@ -72,3 +72,5 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 3. Create admin account on Vercel site
 4. Try logging in from different device - it should work! 🎉
 
+
+

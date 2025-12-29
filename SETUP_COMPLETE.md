@@ -77,3 +77,5 @@ The `.env.local` file is already in `.gitignore` so it won't be committed to Git
 However, the anon key is safe to be exposed in frontend code - it's designed for public use.
 Just make sure you never commit your service_role key (if you use one later).
 
+
+

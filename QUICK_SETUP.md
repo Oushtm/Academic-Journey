@@ -80,3 +80,5 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 - Make sure you ran the SQL to create tables
 - Redeploy after adding environment variables
 
+
+

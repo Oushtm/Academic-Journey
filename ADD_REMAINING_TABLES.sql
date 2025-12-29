@@ -25,3 +25,4 @@ CREATE INDEX IF NOT EXISTS idx_user_data_user_id ON user_data(user_id);
 ALTER TABLE shared_structure DISABLE ROW LEVEL SECURITY;
 ALTER TABLE user_data DISABLE ROW LEVEL SECURITY;
 
+

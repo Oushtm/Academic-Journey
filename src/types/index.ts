@@ -79,3 +79,22 @@ export interface SubjectCalculations {
   finalS1Score: number;
 }
 
+// Schedule/Timetable types
+export type EventType = 'class' | 'exam' | 'event' | 'holiday';
+
+export interface ScheduleEvent {
+  id: string;
+  title: string;
+  description?: string;
+  type: EventType;
+  startDate: string; // ISO date string
+  endDate: string; // ISO date string
+  startTime?: string; // HH:MM format
+  endTime?: string; // HH:MM format
+  location?: string;
+  subjectId?: string; // Link to subject if applicable
+  createdBy: string; // User ID
+  createdAt: number;
+  updatedAt: number;
+}
+

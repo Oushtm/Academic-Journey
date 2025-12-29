@@ -10,3 +10,5 @@ export const supabase = supabaseUrl && supabaseAnonKey
 
 export const useSupabase = () => !!supabase;
 
+
+

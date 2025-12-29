@@ -63,6 +63,16 @@ export function Layout({ children }: LayoutProps) {
                 Dashboard
               </Link>
               <Link
+                to="/schedule"
+                className={`px-4 md:px-5 py-2 md:py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${
+                  location.pathname === '/schedule'
+                    ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/50 scale-105'
+                    : 'text-gray-700 hover:bg-gray-100/80 hover:text-primary-600 hover:scale-105'
+                }`}
+              >
+                📅 Schedule
+              </Link>
+              <Link
                 to="/profile"
                 className={`px-4 md:px-5 py-2 md:py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 relative overflow-hidden ${
                   location.pathname === '/profile'
@@ -141,6 +151,17 @@ export function Layout({ children }: LayoutProps) {
                   }`}
                 >
                   Dashboard
+                </Link>
+                <Link
+                  to="/schedule"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                    location.pathname === '/schedule'
+                      ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  📅 Schedule
                 </Link>
                 <Link
                   to="/profile"

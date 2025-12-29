@@ -90,3 +90,5 @@ If you see them, you're good! If not, go back to Step 1.
 
 For production, you should enable RLS and create proper policies. But for now, disabling RLS will get it working.
 
+
+
