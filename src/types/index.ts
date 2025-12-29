@@ -28,6 +28,9 @@ export interface SubjectUserData {
   // S1 Grading
   assignmentScore?: number;
   examScore?: number;
+  // S2 Grading
+  assignmentScoreS2?: number;
+  examScoreS2?: number;
   // Attendance (user-specific)
   missedSessions: number;
   // User-specific lesson review status (lessonId -> reviewStatus)
@@ -39,6 +42,8 @@ export interface Subject extends SubjectStructure {
   // This is for backward compatibility and will be computed
   assignmentScore?: number;
   examScore?: number;
+  assignmentScoreS2?: number;
+  examScoreS2?: number;
   missedSessions: number;
   lessons: (Lesson & { reviewStatus?: ReviewStatus })[]; // reviewStatus is optional and user-specific
 }
