@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useAcademic } from '../context/AcademicContext';
-import type { ScheduleEvent, EventType, AcademicYear, Module, DayOfWeek } from '../types';
+import type { ScheduleEvent, EventType, AcademicYear, Module, DayOfWeek, AttendanceRecord } from '../types';
 import {
   loadScheduleEvents,
   addScheduleEvent,
   updateScheduleEvent,
   deleteScheduleEvent,
   getAllEventsForDate,
+  getDayOfWeek,
   markAbsence,
+  markPresence,
+  getAbsenceCountForSubject,
   getAbsencesForUser,
 } from '../services/scheduleStorage';
 
@@ -17,6 +20,7 @@ export function Schedule() {
   const { years, updateUserSubjectData, getUserSubjectData } = useAcademic();
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
   const [viewMode, setViewMode] = useState<'week' | 'month' | 'list'>('week');

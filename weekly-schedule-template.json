@@ -1,0 +1,129 @@
+[
+  {
+    "title": "Organisation des Entreprises",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "monday",
+    "startTime": "09:00",
+    "endTime": "10:30",
+    "description": "Organisation et gestion des entreprises"
+  },
+  {
+    "title": "Algèbre",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "monday",
+    "startTime": "10:45",
+    "endTime": "12:45",
+    "description": "Cours d'algèbre"
+  },
+  {
+    "title": "Circuit Électrique",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "monday",
+    "startTime": "14:30",
+    "endTime": "16:00",
+    "description": "Cours de circuit électrique"
+  },
+  {
+    "title": "Algorithme",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "tuesday",
+    "startTime": "08:30",
+    "endTime": "11:45",
+    "description": "Cours d'algorithme et structures de données"
+  },
+  {
+    "title": "Comptabilité",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "tuesday",
+    "startTime": "12:30",
+    "endTime": "14:00",
+    "description": "Cours de comptabilité"
+  },
+  {
+    "title": "Analyse de Controverses",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "wednesday",
+    "startTime": "09:00",
+    "endTime": "10:30",
+    "description": "Analyse de controverses"
+  },
+  {
+    "title": "MTU",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "wednesday",
+    "startTime": "10:45",
+    "endTime": "12:45",
+    "description": "Mathématiques et Techniques de l'Univers"
+  },
+  {
+    "title": "Langage de Programmation",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "wednesday",
+    "startTime": "14:00",
+    "endTime": "17:15",
+    "description": "Cours de langage de programmation"
+  },
+  {
+    "title": "Analyse",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "thursday",
+    "startTime": "08:30",
+    "endTime": "10:30",
+    "description": "Cours d'analyse mathématique"
+  },
+  {
+    "title": "Circuit Numérique",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "thursday",
+    "startTime": "10:45",
+    "endTime": "12:15",
+    "description": "Cours de circuit numérique"
+  },
+  {
+    "title": "TP Circuit Électrique",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "thursday",
+    "startTime": "14:00",
+    "endTime": "16:00",
+    "description": "Travaux pratiques de circuit électrique"
+  },
+  {
+    "title": "TP Langage de Programmation",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "thursday",
+    "startTime": "16:15",
+    "endTime": "18:15",
+    "description": "Travaux pratiques de programmation"
+  },
+  {
+    "title": "English",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "friday",
+    "startTime": "09:00",
+    "endTime": "10:30",
+    "description": "English language course"
+  },
+  {
+    "title": "Français",
+    "type": "class",
+    "isRecurring": true,
+    "dayOfWeek": "friday",
+    "startTime": "10:45",
+    "endTime": "12:15",
+    "description": "Cours de français"
+  }
+]
+

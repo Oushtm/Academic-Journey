@@ -81,6 +81,7 @@ export interface SubjectCalculations {
 
 // Schedule/Timetable types
 export type EventType = 'class' | 'exam' | 'event' | 'holiday';
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
 export interface ScheduleEvent {
   id: string;
@@ -96,5 +97,19 @@ export interface ScheduleEvent {
   createdBy: string; // User ID
   createdAt: number;
   updatedAt: number;
+  // Weekly recurring schedule
+  isRecurring?: boolean;
+  dayOfWeek?: DayOfWeek;
+}
+
+// Attendance tracking for schedule events
+export interface AttendanceRecord {
+  id: string;
+  userId: string;
+  eventId: string;
+  subjectId: string;
+  date: string; // ISO date string
+  isAbsent: boolean;
+  markedAt: number;
 }
 
