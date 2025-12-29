@@ -216,11 +216,17 @@ export function Schedule() {
   // Weekly view helpers
   const getWeekDates = (date: Date) => {
     const curr = new Date(date);
-    const first = curr.getDate() - curr.getDay() + 1; // Monday
+    const dayOfWeek = curr.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust to Monday
+    
+    const monday = new Date(curr);
+    monday.setDate(curr.getDate() + diff);
+    
     const weekDates: Date[] = [];
     for (let i = 0; i < 7; i++) {
-      const day = new Date(curr.setDate(first + i));
-      weekDates.push(new Date(day));
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + i);
+      weekDates.push(day);
     }
     return weekDates;
   };
