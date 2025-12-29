@@ -301,13 +301,11 @@ export function Schedule() {
       
       await loadEvents();
       
-      // Verify
+      // Verify (silent)
       const stored = localStorage.getItem('schedule_events');
       const parsedEvents = stored ? JSON.parse(stored) : [];
       console.log('Verification: Total events in storage:', parsedEvents.length);
       console.log('Friday events:', parsedEvents.filter((e: any) => e.dayOfWeek === 'friday'));
-      
-      alert(`✅ Successfully added ${newEvents.length} weekly classes!\n\nCheck console for details.`);
     } catch (error) {
       console.error('Error adding weekly classes:', error);
       alert('❌ Error adding classes. Please try again.');
