@@ -48,6 +48,25 @@ export function Schedule() {
     loadEvents();
   }, [viewMode]);
 
+  // Auto-add classes if missing (only for admin)
+  useEffect(() => {
+    const autoAddClasses = async () => {
+      if (!currentUser?.isAdmin) return;
+      if (events.length > 0 && events.length < 14) {
+        console.log('Detected incomplete schedule. Auto-adding all classes...');
+        localStorage.removeItem('schedule_events');
+        await handleAddAllWeeklyClasses();
+      } else if (events.length === 0) {
+        console.log('No classes found. Auto-adding all 14 classes...');
+        await handleAddAllWeeklyClasses();
+      }
+    };
+    
+    if (currentUser?.isAdmin && events.length < 14) {
+      autoAddClasses();
+    }
+  }, [events.length, currentUser]);
+
   const loadEvents = async () => {
     const loadedEvents = await loadScheduleEvents();
     setEvents(loadedEvents);
@@ -262,21 +281,36 @@ export function Schedule() {
     }
 
     try {
-      for (const classData of weeklyScheduleData) {
+      console.log('Starting to add classes. Total to add:', weeklyScheduleData.length);
+      
+      const newEvents: ScheduleEvent[] = [];
+      for (let i = 0; i < weeklyScheduleData.length; i++) {
+        const classData = weeklyScheduleData[i];
         const newEvent: ScheduleEvent = {
           ...classData,
-          id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `event-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,
           createdBy: currentUser.id,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
-        await addScheduleEvent(newEvent);
-        // Small delay to ensure unique IDs
-        await new Promise(resolve => setTimeout(resolve, 10));
+        newEvents.push(newEvent);
+        console.log(`Added class ${i + 1}/${weeklyScheduleData.length}:`, newEvent.title, newEvent.dayOfWeek);
+      }
+      
+      // Add all events at once
+      for (const event of newEvents) {
+        await addScheduleEvent(event);
       }
       
       await loadEvents();
-      alert('✅ All 14 weekly classes have been added successfully!');
+      
+      // Verify
+      const stored = localStorage.getItem('schedule_events');
+      const parsedEvents = stored ? JSON.parse(stored) : [];
+      console.log('Verification: Total events in storage:', parsedEvents.length);
+      console.log('Friday events:', parsedEvents.filter((e: any) => e.dayOfWeek === 'friday'));
+      
+      alert(`✅ Successfully added ${newEvents.length} weekly classes!\n\nCheck console for details.`);
     } catch (error) {
       console.error('Error adding weekly classes:', error);
       alert('❌ Error adding classes. Please try again.');
@@ -333,12 +367,17 @@ export function Schedule() {
             </button>
             {currentUser?.isAdmin && (
               <>
-                {events.length === 0 && (
+                {events.length < 14 && (
                   <button
-                    onClick={handleAddAllWeeklyClasses}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
+                    onClick={async () => {
+                      if (!currentUser) return;
+                      // Clear and re-add all
+                      localStorage.removeItem('schedule_events');
+                      await handleAddAllWeeklyClasses();
+                    }}
+                    className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-sm"
                   >
-                    ⚡ Add All 14 Classes
+                    🔄 Reset & Add All 14 Classes
                   </button>
                 )}
                 <button
