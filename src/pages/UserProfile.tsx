@@ -49,31 +49,31 @@ export function UserProfile() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 rounded-3xl shadow-2xl p-8 md:p-12 text-white">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="relative z-10 space-y-4">
-          <Link to="/" className="text-white/80 hover:text-white text-sm inline-block font-medium hover:underline">
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12 text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-primary-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="relative z-10 space-y-3 sm:space-y-4">
+          <Link to="/" className="text-white/80 hover:text-white text-sm inline-block font-medium hover:underline mb-2">
             ← Back to Home
           </Link>
-          <div className="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-sm font-semibold border border-white/30">
+          <div className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs sm:text-sm font-semibold border border-white/30">
             👤 Your Profile
           </div>
-          <div className="space-y-2">
-            <h2 className="text-4xl md:text-5xl font-extrabold">My Profile</h2>
-            <p className="text-xl text-primary-100">Your personal academic statistics and overview</p>
+          <div className="space-y-2 sm:space-y-3 pt-2">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">My Profile</h2>
+            <p className="text-base sm:text-lg md:text-xl text-primary-100 leading-relaxed">Your personal academic statistics and overview</p>
           </div>
         </div>
       </div>
 
       {/* User Info Card */}
-      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-8">
-        <div className="flex items-center space-x-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center border-2 border-primary-300">
-            <span className="text-4xl">👤</span>
+      <div className="glass-effect rounded-2xl shadow-medium border border-white/50 p-5 sm:p-8">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center border-2 border-primary-300 flex-shrink-0">
+            <span className="text-3xl sm:text-4xl">👤</span>
           </div>
-          <div>
-            <h3 className="text-2xl font-extrabold text-gray-900">{currentUser.username}</h3>
-            <p className="text-gray-600 mt-1">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 truncate">{currentUser.username}</h3>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">
               Member since {new Date(currentUser.createdAt).toLocaleDateString()}
             </p>
           </div>

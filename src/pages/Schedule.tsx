@@ -428,14 +428,6 @@ export function Schedule() {
                                 </div>
                               )}
                             </div>
-                            {!currentUser?.isAdmin && event.type === 'class' && (
-                              <button
-                                onClick={() => handleMarkAbsence(event, date)}
-                                className="w-full mt-2 text-xs sm:text-sm px-3 py-2.5 sm:py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all font-bold shadow-md active:scale-95 touch-manipulation"
-                              >
-                                ❌ I'm Absent
-                              </button>
-                            )}
                           </div>
                         ))
                     )}
