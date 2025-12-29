@@ -316,7 +316,17 @@ export function Schedule() {
               📋 List
             </button>
             <button
-              onClick={loadEvents}
+              onClick={() => {
+                loadEvents();
+                // Debug: Show what's in storage
+                const stored = localStorage.getItem('schedule_events');
+                const parsedEvents = stored ? JSON.parse(stored) : [];
+                console.log('=== STORAGE DEBUG ===');
+                console.log('Total events in storage:', parsedEvents.length);
+                console.log('Recurring events:', parsedEvents.filter((e: any) => e.isRecurring).length);
+                console.log('Friday events:', parsedEvents.filter((e: any) => e.dayOfWeek === 'friday'));
+                console.log('All days:', parsedEvents.filter((e: any) => e.isRecurring).map((e: any) => ({ title: e.title, day: e.dayOfWeek })));
+              }}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all font-semibold text-sm"
             >
               🔄 Refresh

@@ -147,7 +147,19 @@ export function getDayOfWeek(date: Date): DayOfWeek {
 // Get recurring events for a specific date
 export function getRecurringEventsForDate(events: ScheduleEvent[], date: Date): ScheduleEvent[] {
   const dayOfWeek = getDayOfWeek(date);
-  return events.filter((event) => event.isRecurring && event.dayOfWeek === dayOfWeek);
+  const recurringEvents = events.filter((event) => event.isRecurring && event.dayOfWeek === dayOfWeek);
+  
+  // Debug logging
+  console.log('getRecurringEventsForDate:', {
+    date: date.toDateString(),
+    jsDay: date.getDay(),
+    calculatedDayOfWeek: dayOfWeek,
+    totalRecurringEvents: events.filter(e => e.isRecurring).length,
+    matchingEvents: recurringEvents.length,
+    matchingTitles: recurringEvents.map(e => e.title)
+  });
+  
+  return recurringEvents;
 }
 
 // Get all events for a specific date (including recurring)
